@@ -20,3 +20,21 @@ print(myarray)
 
 myarray[myarray < 0] = 0
 
+print(myarray)
+
+driver = gdal.GetDriverByName('GTiff')
+
+dst_ds = driver.Create('test_tiff.tif', xsize=myarray.shape[1], ysize=myarray.shape[0],
+                       bands=1, eType=gdal.GDT_Float32)
+
+dst_ds.SetGeoTransform((
+    5000,  # 0
+    100,  # 1
+    0,  # 2
+    5000,  # 3
+    0,  # 4
+    -100))
+
+dst_ds.SetProjection(Projection.ExportToWkt())
+dst_ds.GetRasterBand(1).WriteArray(myarray)
+dst_ds.FlushCache()  # Write to disk.
