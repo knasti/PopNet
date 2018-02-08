@@ -25,18 +25,31 @@ print(myarray)
 Projection = osr.SpatialReference()
 Projection.ImportFromWkt(pop_data.GetProjectionRef())
 
+geoTransform = pop_data.GetGeoTransform()
+minx = geoTransform[0]
+maxy = geoTransform[3]
+
+
+print(geoTransform)
+print(minx)
+print(maxy)
+
 driver = gdal.GetDriverByName('GTiff')
 
 dst_ds = driver.Create('test_tiff.tif', xsize=myarray.shape[1], ysize=myarray.shape[0],
                        bands=1, eType=gdal.GDT_Float32)
 
 dst_ds.SetGeoTransform((
-    5000,  # 0
-    100,  # 1
-    0,  # 2
-    5000,  # 3
-    0,  # 4
-    -100))
+    geoTransform[0],  # x_min
+    geoTransform[1],  # pixel width
+    geoTransform[2],  # rotation
+    geoTransform[3],  # y_max
+    geoTransform[4],  # rotation
+    geoTransform[5]  # pixel height
+    ))
+
+# xmin
+# ymax
 
 dst_ds.SetProjection(Projection.ExportToWkt())
 dst_ds.GetRasterBand(1).WriteArray(myarray)
