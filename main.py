@@ -22,6 +22,9 @@ myarray[myarray < 0] = 0
 
 print(myarray)
 
+Projection = osr.SpatialReference()
+Projection.ImportFromWkt(pop_data.GetProjectionRef())
+
 driver = gdal.GetDriverByName('GTiff')
 
 dst_ds = driver.Create('test_tiff.tif', xsize=myarray.shape[1], ysize=myarray.shape[0],
@@ -38,3 +41,9 @@ dst_ds.SetGeoTransform((
 dst_ds.SetProjection(Projection.ExportToWkt())
 dst_ds.GetRasterBand(1).WriteArray(myarray)
 dst_ds.FlushCache()  # Write to disk.
+
+
+
+
+
+
