@@ -9,34 +9,24 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
 data_dir = os.path.join(base_dir, 'data')
 
+# Loads the geotiff
 pop_data = gdal.Open(os.path.join(data_dir, 'TGO14adjv1.tif'))
 
-myarray = np.array(pop_data.GetRasterBand(1).ReadAsArray())
-print(myarray.shape)
+# Store the values of the geotif into a np.array
+pop_arr = np.array(pop_data.GetRasterBand(1).ReadAsArray())
 
-print(myarray.max())
+# Null-values (neg-values) are replaced with zeros
+pop_arr[pop_arr < 0] = 0
 
-print(myarray)
-
-myarray[myarray < 0] = 0
-
-print(myarray)
-
+# Picking up values reference values needed to export to geotif
 Projection = osr.SpatialReference()
 Projection.ImportFromWkt(pop_data.GetProjectionRef())
 
 geoTransform = pop_data.GetGeoTransform()
-minx = geoTransform[0]
-maxy = geoTransform[3]
-
-
-print(geoTransform)
-print(minx)
-print(maxy)
 
 driver = gdal.GetDriverByName('GTiff')
 
-dst_ds = driver.Create('test_tiff.tif', xsize=myarray.shape[1], ysize=myarray.shape[0],
+dst_ds = driver.Create('test_tiff.tif', xsize=pop_arr.shape[1], ysize=pop_arr.shape[0],
                        bands=1, eType=gdal.GDT_Float32)
 
 dst_ds.SetGeoTransform((
@@ -48,11 +38,8 @@ dst_ds.SetGeoTransform((
     geoTransform[5]  # pixel height
     ))
 
-# xmin
-# ymax
-
 dst_ds.SetProjection(Projection.ExportToWkt())
-dst_ds.GetRasterBand(1).WriteArray(myarray)
+dst_ds.GetRasterBand(1).WriteArray(pop_arr)
 dst_ds.FlushCache()  # Write to disk.
 
 
