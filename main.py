@@ -45,7 +45,16 @@ print(pop_dif_14_15)
 plt.imshow(pop_arr_10)
 plt.show()
 
+# Train Test Split
+# if np.sum(x_data) = np.sum(x_data_original) + pop_dif_yearX_yearY)
+x_data = pop_arr_10
+y_true = pop_arr_14
+x_train, x_test, y_train, y_test = train_test_split(x_data,y_true, test_size=0.3, random_state = 101)
 
+print(x_train.shape)
+print(x_test.shape)
+print(y_train.shape)
+print(y_test.shape)
 
 
 # Picking up values reference values needed to export to geotif
