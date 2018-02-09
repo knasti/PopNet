@@ -6,6 +6,7 @@ from osgeo import gdal
 import osr
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
@@ -45,11 +46,18 @@ print(pop_dif_14_15)
 plt.imshow(pop_arr_10)
 plt.show()
 
-# Train Test Split
+# Train Test Split randomly with scikit-learn
 # if np.sum(x_data) = np.sum(x_data_original) + pop_dif_yearX_yearY)
 x_data = pop_arr_10
 y_true = pop_arr_14
 x_train, x_test, y_train, y_test = train_test_split(x_data,y_true, test_size=0.3, random_state = 101)
+
+# Normalizing the data with scikit-learn
+scaler = MinMaxScaler()
+x_train = scaler.fit_transform(x_train)
+x_test = scaler.fit_transform(x_test)
+
+
 
 print(x_train.shape)
 print(x_test.shape)
