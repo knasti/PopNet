@@ -3,3 +3,4 @@ numpy
 osgeo / gdal
 scikit-learn
 osr
+matplotlib
