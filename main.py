@@ -117,6 +117,12 @@ def create_chunks(x_data, y_true):
 create_chunks(pop_arr_10, pop_arr_14)
 
 
+def next_batch(self, batch_size):
+    x = self.training_images[self.i:self.i + batch_size].reshape(100, 32, 32, 3)
+    y = self.training_labels[self.i:self.i + batch_size]
+    self.i = (self.i + batch_size) % len(self.training_images)
+    return x, y
+
 # Train Test Split randomly with scikit-learn
 # if np.sum(x_data) = np.sum(x_data_original) + pop_dif_yearX_yearY)
 # x_data = pop_arr_10
