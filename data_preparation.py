@@ -2,10 +2,12 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-class Pop_Helper():
+
+class PopHelper():
 
     def __init__(self, x_data, y_true, batch_size, chunk_height=32, chunk_width=32):
         self.i = 0
+        self.j = 0
         self.x_data = x_data
         self.y_true = y_true
         self.batch_size = batch_size
@@ -55,6 +57,7 @@ class Pop_Helper():
         # Creating train test split
         x_train, x_test, y_train, y_test = train_test_split(x_data, y_true, test_size=0.3, random_state=101)
 
+        # Stores the shapes to restore them after the normalization
         x_train_shape = x_train.shape
         x_test_shape = x_test.shape
         y_train_shape = y_train.shape
@@ -68,14 +71,26 @@ class Pop_Helper():
         y_train = scaler.fit_transform(y_train.reshape(y_train.shape[0] * y_train.shape[1] * y_train.shape[2], 1))
         y_test = scaler.fit_transform(y_test.reshape(y_test.shape[0] * y_test.shape[1] * y_test.shape[2], 1))
 
-        x_train = x_train.reshape(x_train_shape[0], x_train_shape[1], x_train_shape[2], x_train_shape[3])
-        x_test = x_test.reshape(x_test_shape[0], x_test_shape[1], x_test_shape[2], x_test_shape[3])
-        y_train = y_train.reshape(y_train_shape[0], y_train_shape[1], y_train_shape[2], y_train_shape[3])
-        y_test = y_test.reshape(y_test_shape[0], y_test_shape[1], y_test_shape[2], y_test_shape[3])
+        self.x_train = x_train.reshape(x_train_shape[0], x_train_shape[1], x_train_shape[2], x_train_shape[3])
+        self.x_test = x_test.reshape(x_test_shape[0], x_test_shape[1], x_test_shape[2], x_test_shape[3])
+        self.y_train = y_train.reshape(y_train_shape[0], y_train_shape[1], y_train_shape[2], y_train_shape[3])
+        self.y_test = y_test.reshape(y_test_shape[0], y_test_shape[1], y_test_shape[2], y_test_shape[3])
 
 
-    def next_batch(self):
-        x = self.training_images[self.i:self.i + batch_size].reshape(100, 32, 32, 3)
-        y = self.training_labels[self.i:self.i + batch_size]
-        self.i = (self.i + batch_size) % len(self.training_images)
+    def next_train_batch(self):
+        if self.i < (self.x_train.shape[0] / self.batch_size):
+            x = self.x_train[self.i * self.batch_size:(self.i + 1) * self.batch_size, :, :, :]
+            y = self.y_train[self.i * self.batch_size:(self.i + 1) * self.batch_size, :, :, :]
+        else:
+            print('no more batches')
+        self.i += 1
+        return x, y
+
+    def next_test_batch(self):
+        if self.j < (self.x_train.shape[0] / self.batch_size):
+            x = self.x_test[self.j * self.batch_size:(self.j + 1) * self.batch_size, :, :, :]
+            y = self.y_test[self.j * self.batch_size:(self.j + 1) * self.batch_size, :, :, :]
+        else:
+            print('no more batches')
+        self.j += 1
         return x, y

@@ -5,8 +5,7 @@ import tensorflow as tf
 from osgeo import gdal
 import osr
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from data_preparation import PopHelper
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
@@ -46,82 +45,74 @@ print(pop_dif_14_15)
 plt.imshow(pop_arr_10)
 plt.show()
 
+batch_size = 16
 
-def create_chunks(x_data, y_true):
-    chunk_height = 32  # cells
-    chunk_width = 32  # cells
+poph = PopHelper(pop_arr_10, pop_arr_14, batch_size)
 
-    # INPUT DATA
-    # Takes the number of rows MOD the chunk height to determine if we need to add extra rows (padding)
-    rest_rows = x_data.shape[0] % chunk_height
-    if rest_rows != 0:
-        # Adds rows until the input data matches with the chunk height
-        x_data = np.r_[x_data, np.zeros((chunk_height - rest_rows, x_data.shape[1]))]
-
-    # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
-    rest_cols = x_data.shape[1] % chunk_width
-    if rest_rows != 0:
-        # Adds columns until the input data matches with the chunk width
-        x_data = np.c_[x_data, np.zeros((x_data.shape[0], chunk_height - rest_cols))]
-
-    # LABEL (should give the same result as above)
-    # Takes the number of rows MOD the chunk height to determine if we need to add extra rows (padding)
-    rest_rows = y_true.shape[0] % chunk_height
-    if rest_rows != 0:
-        # Adds rows until the input data matches with the chunk height
-        y_true = np.r_[y_true, np.zeros((chunk_height - rest_rows, y_true.shape[1]))]
-
-    # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
-    rest_cols = y_true.shape[1] % chunk_width
-    if rest_rows != 0:
-        # Adds columns until the input data matches with the chunk width
-        y_true = np.c_[y_true, np.zeros((y_true.shape[0], chunk_height - rest_cols))]
-
-    chunk_rows = int(x_data.shape[0] / chunk_height)
-    chunk_cols = int(x_data.shape[1] / chunk_width)
-    no_chunks = int(chunk_rows * chunk_cols)
-
-    # [number of chunks, chunk height, chunk width, number of features]
-    x_data = x_data.reshape((no_chunks, chunk_height, chunk_width, 1))
-    y_true = y_true.reshape((no_chunks, chunk_height, chunk_width, 1))
-
-    # Creating train test split
-    x_train, x_test, y_train, y_test = train_test_split(x_data, y_true, test_size=0.3, random_state=101)
-
-    x_train_shape = x_train.shape
-    x_test_shape = x_test.shape
-    y_train_shape = y_train.shape
-    y_test_shape = y_test.shape
-
-    # Normalizing the data with scikit-learn, needs to be in a 2D-array
-    scaler = MinMaxScaler()
-    x_train = scaler.fit_transform(x_train.reshape(x_train.shape[0] * x_train.shape[1] * x_train.shape[2], 1))
-    x_test = scaler.fit_transform(x_test.reshape(x_test.shape[0] * x_test.shape[1] * x_test.shape[2], 1))
-
-    y_train = scaler.fit_transform(y_train.reshape(y_train.shape[0] * y_train.shape[1] * y_train.shape[2], 1))
-    y_test = scaler.fit_transform(y_test.reshape(y_test.shape[0] * y_test.shape[1] * y_test.shape[2], 1))
-
-    x_train = x_train.reshape(x_train_shape[0], x_train_shape[1], x_train_shape[2], x_train_shape[3])
-    x_test = x_test.reshape(x_test_shape[0], x_test_shape[1], x_test_shape[2], x_test_shape[3])
-    y_train = y_train.reshape(y_train_shape[0], y_train_shape[1], y_train_shape[2], y_train_shape[3])
-    y_test = y_test.reshape(y_test_shape[0], y_test_shape[1], y_test_shape[2], y_test_shape[3])
-
-    print(x_train.shape)
-    print(x_test.shape)
-    print(y_train.shape)
-    print(y_test.shape)
-
-    # return x_data, y_true
+poph.create_chunks()
 
 
-create_chunks(pop_arr_10, pop_arr_14)
+x = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
+y_true = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
+
+W = tf.Variable(tf.zeros([32 * 32 * 1, 32 * 32 * 1]))
+
+b = tf.Variable(tf.zeros([32 * 32 * 1]))
+
+# Create the Graph
+y = tf.matmul(x,W) + b
+
+root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
+
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.5)
+
+train = optimizer.minimize(root_mean_square_err)
 
 
-def next_batch(self, batch_size):
-    x = self.training_images[self.i:self.i + batch_size].reshape(100, 32, 32, 3)
-    y = self.training_labels[self.i:self.i + batch_size]
-    self.i = (self.i + batch_size) % len(self.training_images)
-    return x, y
+init = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+    sess.run(init)
+
+    # Train the model for 1000 steps on the training set
+    # Using built in batch feeder from mnist for convenience
+    steps = 1000
+    for i in range(steps):
+        batch_x, batch_y = poph.next_train_batch()
+        batch_x = batch_x.reshape(batch_x.shape[0], batch_x.shape[1] * batch_x.shape[2] * batch_x.shape[3])
+        batch_y = batch_y.reshape(batch_y.shape[0], batch_y.shape[1] * batch_y.shape[2] * batch_y.shape[3])
+        sess.run(train, feed_dict={x: batch_x, y_true: batch_y})
+
+        # PRINT OUT A MESSAGE EVERY 100 STEPS
+        if i % 100 == 0:
+            print('Currently on step {}'.format(i))
+            print('Accuracy is:')
+            # Test the Train Model
+            rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
+
+            test_batch_x, test_batch_y = poph.next_test_batch()
+            test_batch_x = test_batch_x.reshape(test_batch_x.shape[0], test_batch_x.shape[1] * test_batch_x.shape[2] * test_batch_x.shape[3])
+            test_batch_y = test_batch_y.reshape(test_batch_y.shape[0], test_batch_y.shape[1] * test_batch_y.shape[2] * test_batch_y.shape[3])
+
+            print(sess.run(rmse, feed_dict={x: test_batch_x, y_true: test_batch_y}))
+
+            print(rmse)
+
+
+    # Test the Train Model
+    # rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
+    #
+    # acc = tf.reduce_mean(tf.cast(matches, tf.float32))
+    #
+    # print(sess.run(rmse, feed_dict={x: mnist.test.images, y_true: mnist.test.labels}))
+
+    steps
+
+
+
+
+print(x.shape)
+print(y.shape)
 
 # Train Test Split randomly with scikit-learn
 # if np.sum(x_data) = np.sum(x_data_original) + pop_dif_yearX_yearY)
@@ -147,12 +138,12 @@ def next_batch(self, batch_size):
 #     self.i = (self.i + batch_size) % len(self.training_images)
 
 
-
-print(x_train.shape)
-print(min(x_train.shape))
-print(x_test.shape)
-print(y_train.shape)
-print(y_test.shape)
+#
+# print(x_train.shape)
+# print(min(x_train.shape))
+# print(x_test.shape)
+# print(y_train.shape)
+# print(y_test.shape)
 
 
 # Picking up values reference values needed to export to geotif
