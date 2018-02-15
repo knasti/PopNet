@@ -67,9 +67,10 @@ root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y)))
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.5)
 
 train = optimizer.minimize(root_mean_square_err)
-
-
 init = tf.global_variables_initializer()
+
+train_data, train_labels = poph.train_batches()
+test_data, test_labels = poph.test_batches()
 
 with tf.Session() as sess:
     sess.run(init)
@@ -77,11 +78,10 @@ with tf.Session() as sess:
     # Train the model for 1000 steps on the training set
     # Using built in batch feeder from mnist for convenience
     steps = 1000
-    for i in range(steps):
-        batch_x, batch_y = poph.next_train_batch()
-        batch_x = batch_x.reshape(batch_x.shape[0], batch_x.shape[1] * batch_x.shape[2] * batch_x.shape[3])
-        batch_y = batch_y.reshape(batch_y.shape[0], batch_y.shape[1] * batch_y.shape[2] * batch_y.shape[3])
-        sess.run(train, feed_dict={x: batch_x, y_true: batch_y})
+    for i in range(len(train_data)):
+        train_data[i] = train_data[i].reshape(train_data[i].shape[0], train_data[i].shape[1] * train_data[i].shape[2] * train_data[i].shape[3])
+        train_labels[i] = train_labels[i].reshape(train_labels[i].shape[0], train_labels[i].shape[1] * train_labels[i].shape[2] * train_labels[i].shape[3])
+        sess.run(train, feed_dict={x: train_data[i], y_true: train_labels[i]})
 
         # PRINT OUT A MESSAGE EVERY 100 STEPS
         if i % 100 == 0:
@@ -90,11 +90,10 @@ with tf.Session() as sess:
             # Test the Train Model
             rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
 
-            test_batch_x, test_batch_y = poph.next_test_batch()
-            test_batch_x = test_batch_x.reshape(test_batch_x.shape[0], test_batch_x.shape[1] * test_batch_x.shape[2] * test_batch_x.shape[3])
-            test_batch_y = test_batch_y.reshape(test_batch_y.shape[0], test_batch_y.shape[1] * test_batch_y.shape[2] * test_batch_y.shape[3])
+            test_data[i] = test_data[i].reshape(test_data[i].shape[0], test_data[i].shape[1] * test_data[i].shape[2] * test_data[i].shape[3])
+            test_labels[i] = test_labels[i].reshape(test_labels[i].shape[0], test_labels[i].shape[1] * test_labels[i].shape[2] * test_labels[i].shape[3])
 
-            print(sess.run(rmse, feed_dict={x: test_batch_x, y_true: test_batch_y}))
+            print(sess.run(rmse, feed_dict={x: test_data[i], y_true: test_labels[i]}))
 
             print(rmse)
 

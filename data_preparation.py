@@ -6,8 +6,6 @@ from sklearn.preprocessing import MinMaxScaler
 class PopHelper():
 
     def __init__(self, x_data, y_true, batch_size, chunk_height=32, chunk_width=32):
-        self.i = 0
-        self.j = 0
         self.x_data = x_data
         self.y_true = y_true
         self.batch_size = batch_size
@@ -17,6 +15,8 @@ class PopHelper():
         self.y_test = None
         self.chunk_height = chunk_height
         self.chunk_width = chunk_width
+        self.no_train_chunks = None
+        self.no_test_chunks = None
 
 
     def create_chunks(self):
@@ -76,21 +76,29 @@ class PopHelper():
         self.y_train = y_train.reshape(y_train_shape[0], y_train_shape[1], y_train_shape[2], y_train_shape[3])
         self.y_test = y_test.reshape(y_test_shape[0], y_test_shape[1], y_test_shape[2], y_test_shape[3])
 
+        self.no_train_chunks = x_train_shape[0]
+        self.no_test_chunks = y_train_shape[0]
 
-    def next_train_batch(self):
-        if self.i < (self.x_train.shape[0] / self.batch_size):
-            x = self.x_train[self.i * self.batch_size:(self.i + 1) * self.batch_size, :, :, :]
-            y = self.y_train[self.i * self.batch_size:(self.i + 1) * self.batch_size, :, :, :]
-        else:
-            print('no more batches')
-        self.i += 1
+
+    def train_batches(self):
+        num_train_batch = self.no_train_chunks // self.batch_size
+        x = []
+        y = []
+
+        for i in range(num_train_batch - 1):
+            x.append(self.x_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
+            y.append(self.y_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
+
         return x, y
 
-    def next_test_batch(self):
-        if self.j < (self.x_train.shape[0] / self.batch_size):
-            x = self.x_test[self.j * self.batch_size:(self.j + 1) * self.batch_size, :, :, :]
-            y = self.y_test[self.j * self.batch_size:(self.j + 1) * self.batch_size, :, :, :]
-        else:
-            print('no more batches')
-        self.j += 1
+    def test_batches(self):
+        num_test_batch = self.no_test_chunks // self.batch_size
+        x = []
+        y = []
+
+        for i in range(num_test_batch - 1):
+            x.append(self.x_test[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
+            y.append(self.y_test[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
+
         return x, y
+
