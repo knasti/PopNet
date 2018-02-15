@@ -77,7 +77,7 @@ class PopHelper():
         self.y_test = y_test.reshape(y_test_shape[0], y_test_shape[1], y_test_shape[2], y_test_shape[3])
 
         self.no_train_chunks = x_train_shape[0]
-        self.no_test_chunks = y_train_shape[0]
+        self.no_test_chunks = x_test_shape[0]
 
 
     def train_batches(self):
@@ -85,20 +85,28 @@ class PopHelper():
         x = []
         y = []
 
-        for i in range(num_train_batch - 1):
+        for i in range(num_train_batch):
             x.append(self.x_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
             y.append(self.y_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
 
-        return x, y
+            # Flattening the np.array
+            x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
+            y[i] = y[i].reshape(y[i].shape[0], y[i].shape[1] * y[i].shape[2] * y[i].shape[3])
+
+        return x, y, num_train_batch
 
     def test_batches(self):
         num_test_batch = self.no_test_chunks // self.batch_size
         x = []
         y = []
 
-        for i in range(num_test_batch - 1):
+        for i in range(num_test_batch):
             x.append(self.x_test[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
             y.append(self.y_test[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
 
-        return x, y
+            # Flattening the np.array
+            x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
+            y[i] = y[i].reshape(y[i].shape[0], y[i].shape[1] * y[i].shape[2] * y[i].shape[3])
+
+        return x, y, num_test_batch
 

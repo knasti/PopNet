@@ -42,8 +42,8 @@ print(pop_dif_10_14)
 print(pop_dif_14_15)
 
 # Shows the np.array
-plt.imshow(pop_arr_10)
-plt.show()
+# plt.imshow(pop_arr_10)
+# plt.show()
 
 batch_size = 16
 
@@ -64,38 +64,64 @@ y = tf.matmul(x,W) + b
 
 root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
 
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.5)
+optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
 
 train = optimizer.minimize(root_mean_square_err)
 init = tf.global_variables_initializer()
 
-train_data, train_labels = poph.train_batches()
-test_data, test_labels = poph.test_batches()
+train_data, train_labels, num_train_batches = poph.train_batches()
+test_data, test_labels, num_test_batches = poph.test_batches()
 
+saver = tf.train.Saver()
+
+num_epochs = 10
+j = 0
+counter = 0
+x_axis = []
+y_axis = []
 with tf.Session() as sess:
     sess.run(init)
+    for epoch in range(num_epochs):
+        print('epoch number {}'.format(epoch))
+        for i in range(num_train_batches):
 
-    # Train the model for 1000 steps on the training set
-    # Using built in batch feeder from mnist for convenience
-    steps = 1000
-    for i in range(len(train_data)):
-        train_data[i] = train_data[i].reshape(train_data[i].shape[0], train_data[i].shape[1] * train_data[i].shape[2] * train_data[i].shape[3])
-        train_labels[i] = train_labels[i].reshape(train_labels[i].shape[0], train_labels[i].shape[1] * train_labels[i].shape[2] * train_labels[i].shape[3])
-        sess.run(train, feed_dict={x: train_data[i], y_true: train_labels[i]})
+            sess.run(train, feed_dict={x: train_data[i], y_true: train_labels[i]})
+            # counter += 1
+            # # PRINT OUT A MESSAGE EVERY 100 STEPS
+            # if i % 100 == 0:
+            #     print('Currently on step {}'.format(i))
+            #     print('Accuracy is:')
+            #     # Test the Train Model
+            #     rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
+            #     err = sess.run(rmse, feed_dict={x: test_data[j], y_true: test_labels[j]})
+            #     print(err)
+            #
+            #     x_axis.append(counter)
+            #     y_axis.append(err)
+            #     j += 1
+            #
+            #     print(rmse)
 
-        # PRINT OUT A MESSAGE EVERY 100 STEPS
+    saver.save(sess, 'models/test_model.ckpt')
+
+# plt.plot(x_axis, y_axis)
+# plt.title("Root Mean Squared Error")
+# plt.xlabel("Iterations")
+# plt.ylabel("Error")
+# plt.show()
+
+with tf.Session() as sess:
+    # Restore the model
+    saver.restore(sess, 'models/test_model.ckpt')
+
+    for i in range(num_test_batches):
+        rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
+        err = sess.run(rmse, feed_dict={x: test_data[i], y_true: test_labels[i]})
+        print('RMSE')
         if i % 100 == 0:
-            print('Currently on step {}'.format(i))
-            print('Accuracy is:')
-            # Test the Train Model
-            rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
+            print('hello')
+        print(err)
 
-            test_data[i] = test_data[i].reshape(test_data[i].shape[0], test_data[i].shape[1] * test_data[i].shape[2] * test_data[i].shape[3])
-            test_labels[i] = test_labels[i].reshape(test_labels[i].shape[0], test_labels[i].shape[1] * test_labels[i].shape[2] * test_labels[i].shape[3])
-
-            print(sess.run(rmse, feed_dict={x: test_data[i], y_true: test_labels[i]}))
-
-            print(rmse)
 
 
     # Test the Train Model
@@ -105,7 +131,7 @@ with tf.Session() as sess:
     #
     # print(sess.run(rmse, feed_dict={x: mnist.test.images, y_true: mnist.test.labels}))
 
-    steps
+
 
 
 
