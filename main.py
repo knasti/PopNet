@@ -1,4 +1,5 @@
 import os
+import gc
 import sys
 import numpy as np
 import tensorflow as tf
@@ -50,7 +51,8 @@ batch_size = 16
 poph = PopHelper(pop_arr_10, pop_arr_14, batch_size)
 
 poph.create_chunks()
-
+poph.create_train_test_split()
+poph.normalize_data()
 
 x = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
 y_true = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
@@ -74,7 +76,7 @@ test_data, test_labels, num_test_batches = poph.test_batches()
 
 saver = tf.train.Saver()
 
-num_epochs = 10
+num_epochs = 2
 j = 0
 counter = 0
 x_axis = []
@@ -118,9 +120,9 @@ with tf.Session() as sess:
         rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
         err = sess.run(rmse, feed_dict={x: test_data[i], y_true: test_labels[i]})
         print('RMSE')
-        if i % 100 == 0:
-            print('hello')
         print(err)
+
+        print(y.shape)
 
 
 
@@ -136,8 +138,37 @@ with tf.Session() as sess:
 
 
 
-print(x.shape)
-print(y.shape)
+poph_1 = PopHelper(pop_arr_10, pop_arr_14, batch_size)
+
+poph_1.create_chunks()
+poph_1.normalize_data(train_test=False)
+
+x_data, batch_num = poph_1.create_batches()
+
+gc.collect()
+
+with tf.Session() as sess:
+    # Restore the model
+    saver.restore(sess, 'models/test_model.ckpt')
+    cur_row = 0
+    cur_col = 0
+    final_raster = np.empty((poph_1.chunk_rows * poph_1.chunk_height, poph_1.chunk_cols * poph_1.chunk_width))
+    for i in range(batch_num):
+        y_pred = sess.run(y, feed_dict={x: x_data[i]})
+        print(type(y_pred))
+        y_pred = y_pred.reshape(batch_size, poph_1.chunk_height, poph_1.chunk_width)
+        print(y_pred.shape)
+        for j in range(batch_size):
+            if poph_1.chunk_cols % (i * batch_size + (j + 1)) == 0:  # Change to new row
+                cur_row += 1
+            final_raster[cur_row * poph_1.chunk_height: (cur_row + 1) * poph_1.chunk_height, cur_col * poph_1.chunk_width: (cur_col + 1) * poph_1.chunk_width] = \
+                y_pred[j,:,:]
+
+    print(np.max(final_raster))
+    print(np.min(final_raster))
+    print(final_raster.shape)
+
+
 
 # Train Test Split randomly with scikit-learn
 # if np.sum(x_data) = np.sum(x_data_original) + pop_dif_yearX_yearY)
@@ -179,7 +210,7 @@ geoTransform = pop_data_14.GetGeoTransform()
 
 driver = gdal.GetDriverByName('GTiff')
 
-dst_ds = driver.Create('test_tiff.tif', xsize=pop_arr_14.shape[1], ysize=pop_arr_14.shape[0],
+dst_ds = driver.Create('test_tiff_1.tif', xsize=final_raster.shape[1], ysize=final_raster.shape[0],
                        bands=1, eType=gdal.GDT_Float32)
 
 dst_ds.SetGeoTransform((
@@ -192,7 +223,7 @@ dst_ds.SetGeoTransform((
     ))
 
 dst_ds.SetProjection(Projection.ExportToWkt())
-dst_ds.GetRasterBand(1).WriteArray(pop_arr_14)
+dst_ds.GetRasterBand(1).WriteArray(final_raster)
 dst_ds.FlushCache()  # Write to disk.
 
 
