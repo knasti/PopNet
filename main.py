@@ -155,14 +155,17 @@ with tf.Session() as sess:
     final_raster = np.empty((poph_1.chunk_rows * poph_1.chunk_height, poph_1.chunk_cols * poph_1.chunk_width))
     for i in range(batch_num):
         y_pred = sess.run(y, feed_dict={x: x_data[i]})
-        print(type(y_pred))
         y_pred = y_pred.reshape(batch_size, poph_1.chunk_height, poph_1.chunk_width)
-        print(y_pred.shape)
+
         for j in range(batch_size):
-            if poph_1.chunk_cols % (i * batch_size + (j + 1)) == 0:  # Change to new row
+            if poph_1.chunk_cols % (i * batch_size + (j + 1)) == 0:  # Change to new row and reset column
                 cur_row += 1
+                cur_col = 0
+
             final_raster[cur_row * poph_1.chunk_height: (cur_row + 1) * poph_1.chunk_height, cur_col * poph_1.chunk_width: (cur_col + 1) * poph_1.chunk_width] = \
                 y_pred[j,:,:]
+
+            cur_col += 1
 
     print(np.max(final_raster))
     print(np.min(final_raster))
