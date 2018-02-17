@@ -162,8 +162,14 @@ with tf.Session() as sess:
                 cur_row += 1
                 cur_col = 0
 
-            final_raster[cur_row * poph_1.chunk_height: (cur_row + 1) * poph_1.chunk_height, cur_col * poph_1.chunk_width: (cur_col + 1) * poph_1.chunk_width] = \
-                y_pred[j,:,:]
+            try:
+                final_raster[cur_row * poph_1.chunk_height: (cur_row + 1) * poph_1.chunk_height, cur_col * poph_1.chunk_width: (cur_col + 1) * poph_1.chunk_width] = \
+                    y_pred[j,:,:]
+            except ValueError:
+                print(i)
+                print(j)
+                print(final_raster.shape)
+                print(y_pred.shape)
 
             cur_col += 1
 

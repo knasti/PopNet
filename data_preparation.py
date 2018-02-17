@@ -118,8 +118,9 @@ class PopHelper():
         batch_num = self.no_chunks // self.batch_size
         x = []
         for i in range(batch_num):
-            x.append(self.x_data[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
-
+            x.append(self.x_data[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
+            if i == 9:
+                print('whjat')
             # Flattening the np.array
             x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
 
