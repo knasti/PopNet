@@ -20,3 +20,9 @@ matrix_add = np.add(matrix_res,b_3)
 
 
 print(matrix_add.shape)
+
+
+
+mod = 5 % 10
+
+print(mod)

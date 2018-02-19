@@ -118,6 +118,7 @@ class PopHelper():
         batch_num = self.no_chunks // self.batch_size
         x = []
         for i in range(batch_num):
+            print(self.x_data.shape)
             x.append(self.x_data[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
             if i == 9:
                 print('whjat')
