@@ -1,5 +1,4 @@
 import os
-import gc
 import sys
 import numpy as np
 import tensorflow as tf
@@ -54,21 +53,29 @@ poph.create_chunks()
 poph.create_train_test_split()
 poph.normalize_data()
 
+# Creating placeholders for the input data
 x = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
 y_true = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
 
-W = tf.Variable(tf.zeros([32 * 32 * 1, 32 * 32 * 1]))
+# Initializing Xavier weights
+W = tf.get_variable("W", shape=[32 * 32 * 1, 32 * 32 * 1], initializer=tf.contrib.layers.xavier_initializer())
 
+# Initializing biases
 b = tf.Variable(tf.zeros([32 * 32 * 1]))
 
 # Create the Graph
 y = tf.matmul(x,W) + b
 
+# TensorFlow function for root mean square error
 root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
 
+# Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
 optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
 
+# Tell the optimizer to use root mean square error as the cost function (the function to minimize)
 train = optimizer.minimize(root_mean_square_err)
+
+# Initialize all TensorFlow variables
 init = tf.global_variables_initializer()
 
 train_data, train_labels, num_train_batches = poph.train_batches()
@@ -81,6 +88,8 @@ j = 0
 counter = 0
 x_axis = []
 y_axis = []
+
+# Training Session
 with tf.Session() as sess:
     sess.run(init)
     for epoch in range(num_epochs):
@@ -88,21 +97,6 @@ with tf.Session() as sess:
         for i in range(num_train_batches):
 
             sess.run(train, feed_dict={x: train_data[i], y_true: train_labels[i]})
-            # counter += 1
-            # # PRINT OUT A MESSAGE EVERY 100 STEPS
-            # if i % 100 == 0:
-            #     print('Currently on step {}'.format(i))
-            #     print('Accuracy is:')
-            #     # Test the Train Model
-            #     rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
-            #     err = sess.run(rmse, feed_dict={x: test_data[j], y_true: test_labels[j]})
-            #     print(err)
-            #
-            #     x_axis.append(counter)
-            #     y_axis.append(err)
-            #     j += 1
-            #
-            #     print(rmse)
 
     saver.save(sess, 'models/test_model.ckpt')
 
@@ -112,6 +106,7 @@ with tf.Session() as sess:
 # plt.ylabel("Error")
 # plt.show()
 
+# Use model to predict population cells
 with tf.Session() as sess:
     # Restore the model
     saver.restore(sess, 'models/test_model.ckpt')
@@ -145,8 +140,10 @@ poph_1.normalize_data(train_test=False)
 
 x_data, batch_num = poph_1.create_batches()
 
-gc.collect()
 
+
+
+#
 with tf.Session() as sess:
     # Restore the model
     saver.restore(sess, 'models/test_model.ckpt')
