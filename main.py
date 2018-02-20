@@ -45,8 +45,10 @@ print(pop_dif_14_15)
 # plt.imshow(pop_arr_10)
 # plt.show()
 
+# Setting up the batch size
 batch_size = 16
 
+# Initalizes PopHelper object to create chunks, train & test split and normalizing the data
 poph = PopHelper(pop_arr_10, pop_arr_14, batch_size)
 
 poph.create_chunks()
@@ -66,6 +68,30 @@ b = tf.Variable(tf.zeros([32 * 32 * 1]))
 # Create the Graph
 y = tf.matmul(x,W) + b
 
+#
+# padding = tf.constant([[1, 1,], [1, 1]])  # Same as [2,2] padding
+# # 'constant_values' is 0.
+# # rank of 't' is 2.
+# tf.pad(x, padding, "CONSTANT")
+
+# conv1 = tf.layers.conv2d(
+#     inputs=x,
+#     filters=32,
+#     kernel_size=[5, 5],
+#     padding="same",
+#     activation=tf.nn.relu)
+#
+# conv2 = tf.layers.conv2d(
+#     inputs=conv1,
+#     filters=32,
+#     kernel_size=[5, 5],
+#     padding="same",
+#     activation=tf.nn.relu)
+#
+# conv2_flat = tf.reshape(conv2, [-1, 7 * 7 * 64])
+# dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+
+
 # TensorFlow function for root mean square error
 root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y_true, y))))
 
@@ -83,7 +109,7 @@ test_data, test_labels, num_test_batches = poph.test_batches()
 
 saver = tf.train.Saver()
 
-num_epochs = 100
+num_epochs = 1
 j = 0
 counter = 0
 x_axis = []
@@ -106,7 +132,7 @@ with tf.Session() as sess:
 # plt.ylabel("Error")
 # plt.show()
 
-# Use model to predict population cells
+# Test Session
 with tf.Session() as sess:
     # Restore the model
     saver.restore(sess, 'models/test_model.ckpt')
@@ -141,9 +167,7 @@ poph_1.normalize_data(train_test=False)
 x_data, batch_num = poph_1.create_batches()
 
 
-
-
-#
+# Use model to predict population cells
 with tf.Session() as sess:
     # Restore the model
     saver.restore(sess, 'models/test_model.ckpt')

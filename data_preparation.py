@@ -105,8 +105,8 @@ class PopHelper():
         y = []
 
         for i in range(num_test_batch):
-            x.append(self.x_test[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
-            y.append(self.y_test[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
+            x.append(self.x_test[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
+            y.append(self.y_test[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
 
             # Flattening the np.array
             x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
