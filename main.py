@@ -117,6 +117,10 @@ counter = 0
 x_axis = []
 y_axis = []
 
+
+
+# with tf.device('/gpu:'+str(GPU_INDEX)):
+
 # Training Session
 with tf.Session() as sess:
     sess.run(init)
