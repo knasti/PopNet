@@ -94,8 +94,8 @@ class PopHelper():
             y.append(self.y_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
 
             # Flattening the np.array
-            x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
-            y[i] = y[i].reshape(y[i].shape[0], y[i].shape[1] * y[i].shape[2] * y[i].shape[3])
+            # x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
+            # y[i] = y[i].reshape(y[i].shape[0], y[i].shape[1] * y[i].shape[2] * y[i].shape[3])
 
         return x, y, num_train_batch
 
@@ -109,8 +109,8 @@ class PopHelper():
             y.append(self.y_test[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
 
             # Flattening the np.array
-            x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
-            y[i] = y[i].reshape(y[i].shape[0], y[i].shape[1] * y[i].shape[2] * y[i].shape[3])
+            # x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
+            # y[i] = y[i].reshape(y[i].shape[0], y[i].shape[1] * y[i].shape[2] * y[i].shape[3])
 
         return x, y, num_test_batch
 
@@ -123,6 +123,6 @@ class PopHelper():
             if i == 9:
                 print('whjat')
             # Flattening the np.array
-            x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
+            # x[i] = x[i].reshape(x[i].shape[0], x[i].shape[1] * x[i].shape[2] * x[i].shape[3])
 
         return x, batch_num

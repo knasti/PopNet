@@ -56,8 +56,8 @@ poph.create_train_test_split()
 poph.normalize_data()
 
 # Creating placeholders for the input data
-x = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
-y_true = tf.placeholder(tf.float32,shape=[None, 32 * 32 * 1])
+x = tf.placeholder(tf.float32,shape=[None, 32, 32, 1])
+y_true = tf.placeholder(tf.float32,shape=[None, 32, 32, 1])
 
 # Initializing Xavier weights
 W = tf.get_variable("W", shape=[32 * 32 * 1, 32 * 32 * 1], initializer=tf.contrib.layers.xavier_initializer())
@@ -66,7 +66,7 @@ W = tf.get_variable("W", shape=[32 * 32 * 1, 32 * 32 * 1], initializer=tf.contri
 b = tf.Variable(tf.zeros([32 * 32 * 1]))
 
 # Create the Graph
-y = tf.matmul(x,W) + b
+# y = tf.matmul(x,W) + b
 
 #
 # padding = tf.constant([[1, 1,], [1, 1]])  # Same as [2,2] padding
@@ -74,22 +74,24 @@ y = tf.matmul(x,W) + b
 # # rank of 't' is 2.
 # tf.pad(x, padding, "CONSTANT")
 
-# conv1 = tf.layers.conv2d(
-#     inputs=x,
-#     filters=32,
-#     kernel_size=[5, 5],
-#     padding="same",
-#     activation=tf.nn.relu)
-#
-# conv2 = tf.layers.conv2d(
-#     inputs=conv1,
-#     filters=32,
-#     kernel_size=[5, 5],
-#     padding="same",
-#     activation=tf.nn.relu)
-#
-# conv2_flat = tf.reshape(conv2, [-1, 7 * 7 * 64])
-# dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+conv1 = tf.layers.conv2d(
+    inputs=x,
+    filters=32,
+    kernel_size=[5, 5],
+    padding="same",
+    activation=tf.nn.relu)
+
+conv2 = tf.layers.conv2d(
+    inputs=conv1,
+    filters=48,
+    kernel_size=[5, 5],
+    padding="same",
+    activation=tf.nn.relu)
+
+# conv2_flat = tf.reshape(conv2, [None, 32 * 32 * 48])
+dense1 = tf.layers.dense(inputs=conv2, units=1024, activation=tf.nn.relu)
+
+y = tf.layers.dense(inputs=dense1, units=1)
 
 
 # TensorFlow function for root mean square error
@@ -118,12 +120,20 @@ y_axis = []
 # Training Session
 with tf.Session() as sess:
     sess.run(init)
+    # convo_test_1 = sess.run(conv1, feed_dict={x: train_data[0]})
+    # convo_test_2 = sess.run(conv2, feed_dict={conv1: convo_test_1})
+    # dense_test_3 = sess.run(dense1, feed_dict={conv2: convo_test_2})
+    # dense_test_4 = sess.run(dense2, feed_dict={dense1: dense_test_3})
+    #
+    # print(convo_test_1.shape)
+    # print(convo_test_2.shape)
+    # print(dense_test_3.shape)
+    # print(dense_test_4.shape)
     for epoch in range(num_epochs):
         print('epoch number {}'.format(epoch))
         for i in range(num_train_batches):
-
             sess.run(train, feed_dict={x: train_data[i], y_true: train_labels[i]})
-
+    print('yoyoyo')
     saver.save(sess, 'models/test_model.ckpt')
 
 # plt.plot(x_axis, y_axis)
@@ -263,7 +273,7 @@ geoTransform = pop_data_14.GetGeoTransform()
 
 driver = gdal.GetDriverByName('GTiff')
 
-dst_ds = driver.Create('test_tiff_1.tif', xsize=super_final_rast.shape[1], ysize=super_final_rast.shape[0],
+dst_ds = driver.Create('test_tiff_3.tif', xsize=super_final_rast.shape[1], ysize=super_final_rast.shape[0],
                        bands=1, eType=gdal.GDT_Float32)
 
 dst_ds.SetGeoTransform((
