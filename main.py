@@ -5,7 +5,7 @@ import tensorflow as tf
 from osgeo import gdal
 import osr
 import matplotlib.pyplot as plt
-from data_preparation import PopHelper
+from data_preparation import PrepData, PrepTrainTest
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
@@ -49,7 +49,7 @@ print(pop_dif_14_15)
 batch_size = 16
 
 # Initalizes PopHelper object to create chunks, train & test split and normalizing the data
-poph = PopHelper(pop_arr_10, pop_arr_14, batch_size)
+poph = PrepTrainTest(pop_arr_10, pop_arr_14, batch_size)
 
 poph.create_chunks()
 poph.create_train_test_split()
@@ -169,10 +169,10 @@ with tf.Session() as sess:
 
 
 
-poph_1 = PopHelper(pop_arr_10, pop_arr_14, batch_size)
+poph_1 = PrepData(pop_arr_10, pop_arr_14, batch_size)
 
 poph_1.create_chunks()
-poph_1.normalize_data(train_test=False)
+poph_1.normalize_data()
 
 x_data, batch_num = poph_1.create_batches()
 
