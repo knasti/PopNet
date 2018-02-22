@@ -10,6 +10,14 @@ class DataGenerator():
         self.config = config
         self.preptraintest = preptraintest
         self.prepdata = prepdata
+        # self.train_data = None
+        # self.train_labels = None
+        # self.num_train_batches = None
+        # self.test_data = None
+        # self.test_labels = None
+        # self.num_test_batches = None
+        # self.input = None
+        # self.batch_num = None
 
     def create_traintest_data(self):
         self.preptraintest.create_chunks()
@@ -46,7 +54,7 @@ class DataGenerator():
         self.i += 1
 
         if self.batch_num == self.i:
-            self.i_test = 0
+            self.i = 0
 
         yield self.input[id], self.input[id]
 

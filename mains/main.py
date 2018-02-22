@@ -15,18 +15,25 @@ from utils.utils import get_args
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
-data_dir = os.path.join(base_dir, 'data')
+data_dir = os.path.relpath('..\\data', base_dir)
+config_dir = os.path.relpath('..\\configs', base_dir)
 
 def main():
     # capture the config path from the run arguments
     # then process the json configration file
-    try:
-        args = get_args()
+    # try:
+    args = get_args()
+    if args.config != 'None':
         config = process_config(args.config)
+    else:
+        config = process_config(os.path.join(config_dir, 'example.json'))
 
-    except:
-        print("missing or invalid arguments")
-        exit(0)
+
+
+    #
+    # except:
+    #     print("missing or invalid arguments")
+    #     exit(0)
 
     # Loads the geotiff
     pop_data_10 = gdal.Open(os.path.join(data_dir, 'TGO10v4.tif'))
@@ -59,6 +66,13 @@ def main():
     model.load(sess)
     # create your data generator
     data = DataGenerator(config, preptt, prepd)
+
+    data.create_traintest_data()
+    data.create_data()
+
+
+    print(data.train_data)
+
     # create tensorboard logger
     logger = Logger(sess, config)
     # create trainer and path all previous components to it
