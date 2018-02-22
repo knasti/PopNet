@@ -136,6 +136,7 @@ with tf.Session() as sess:
     for epoch in range(num_epochs):
         print('epoch number {}'.format(epoch))
         for i in range(num_train_batches):
+            print(train_data)
             sess.run(train, feed_dict={x: train_data[i], y_true: train_labels[i]})
     print('yoyoyo')
     saver.save(sess, 'models/test_model.ckpt')
@@ -167,10 +168,6 @@ with tf.Session() as sess:
     # acc = tf.reduce_mean(tf.cast(matches, tf.float32))
     #
     # print(sess.run(rmse, feed_dict={x: mnist.test.images, y_true: mnist.test.labels}))
-
-
-
-
 
 
 poph_1 = PrepData(pop_arr_10, pop_arr_14, batch_size)
@@ -292,6 +289,10 @@ dst_ds.SetGeoTransform((
 dst_ds.SetProjection(Projection.ExportToWkt())
 dst_ds.GetRasterBand(1).WriteArray(super_final_rast)
 dst_ds.FlushCache()  # Write to disk.
+
+
+
+
 
 
 
