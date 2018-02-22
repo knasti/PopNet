@@ -19,10 +19,21 @@ matrix_res = np.matmul(x_1,W_3)
 matrix_add = np.add(matrix_res,b_3)
 
 
-print(matrix_add.shape)
 
 
 
-mod = 5 % 10
 
-print(mod)
+
+x = np.random.random((4 * 2 * 2, 4))
+
+print(x)
+
+print('hello')
+
+x = x.reshape(4, 2, 4, 2)
+
+print(x)
+
+# x = x.reshape(4 * 2 * 2, 2)
+#
+# print(x)

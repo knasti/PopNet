@@ -44,9 +44,35 @@ class PrepData():
         self.chunk_cols = int(self.x_data.shape[1] / self.chunk_width)
         self.no_chunks = int(self.chunk_rows * self.chunk_cols)
 
+        print(self.x_data.shape)
+
+        cur_row = 0
+        cur_col = 0
+
+        to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
+        to_be_y_true = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
+
+        for i in range(self.no_chunks):
+            if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                cur_row += 1
+                cur_col = 0
+
+            x_chunk = self.x_data[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
+                      cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
+            y_chunk = self.y_true[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
+                      cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
+
+            to_be_x_data[i, :, :] = x_chunk
+            to_be_y_true[i, :, :] = y_chunk
+
+            cur_col += 1
+        to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        self.x_data = to_be_x_data
+        self.y_true = to_be_y_true
+
         # [number of chunks, chunk height, chunk width, number of features]
-        self.x_data = self.x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
-        self.y_true = self.y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+
 
 
     def normalize_data(self):
@@ -114,9 +140,30 @@ class PrepTrainTest():
         self.chunk_cols = int(self.x_data.shape[1] / self.chunk_width)
         self.no_chunks = int(self.chunk_rows * self.chunk_cols)
 
-        # [number of chunks, chunk height, chunk width, number of features]
-        self.x_data = self.x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
-        self.y_true = self.y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        cur_row = 0
+        cur_col = 0
+
+        to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
+        to_be_y_true = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
+
+        for i in range(self.no_chunks):
+            if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                cur_row += 1
+                cur_col = 0
+
+            x_chunk = self.x_data[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
+                      cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
+            y_chunk = self.y_true[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
+                      cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
+
+            to_be_x_data[i, :, :] = x_chunk
+            to_be_y_true[i, :, :] = y_chunk
+
+            cur_col += 1
+        to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        self.x_data = to_be_x_data
+        self.y_true = to_be_y_true
 
     def create_train_test_split(self):
         # Creating train test split

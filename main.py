@@ -87,7 +87,7 @@ conv2 = tf.layers.conv2d(
     kernel_size=[5, 5],
     padding="same",
     activation=tf.nn.relu)
-
+# MÅSKE VI SKAL BRUGE POOLING FOR AT GÅ FRA 48 I SIDSTE DIMENSION TIL 1?
 # conv2_flat = tf.reshape(conv2, [None, 32 * 32 * 48])
 dense1 = tf.layers.dense(inputs=conv2, units=1024, activation=tf.nn.relu)
 
