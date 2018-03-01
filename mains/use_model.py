@@ -28,6 +28,7 @@ def main():
     else:
         config = process_config(os.path.join(config_dir, 'example.json'))
 
+
     # Loads the geotiff
     pop_data_10 = gdal.Open(os.path.join(data_dir, 'TGO10v4.tif'))
     pop_data_14 = gdal.Open(os.path.join(data_dir, 'TGO14adjv1.tif'))
@@ -60,17 +61,68 @@ def main():
     # create your data generator
     data = DataGenerator(config, preptt, prepd)
 
-    data.create_traintest_data()
     data.create_data()
 
-    # Create Tensorboard logger
-    logger = Logger(sess, config)
+    with sess:
+        # Restore the model
+        cur_row = 0
+        cur_col = 0
 
-    # Create trainer and path all previous components to it
-    trainer = PopTrainer(sess, model, data, config, logger)
+        chunk_height = data.prepdata.chunk_height
+        chunk_width = data.prepdata.chunk_width
 
-    # Train model
-    trainer.train()
+        chunk_rows = data.prepdata.chunk_rows
+        chunk_cols = data.prepdata.chunk_cols
+
+        final_raster = np.empty((chunk_rows * chunk_height, chunk_cols * chunk_width))
+        for i in range(data.batch_num):
+            y_pred = sess.run(model.y, feed_dict={model.x: data.input[i]})
+            y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
+
+            for j in range(config.batch_size):
+                if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                    cur_row += 1
+                    cur_col = 0
+
+                final_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
+                    y_pred[j, :, :]
+
+                cur_col += 1
+
+    # Calculating back to population
+    norm_sum = np.sum(final_raster)
+    final_pop = np.sum(pop_arr_14)
+
+    super_final_rast = (final_raster / norm_sum) * final_pop
+
+    print(np.max(super_final_rast))
+    print(np.min(super_final_rast))
+    print(super_final_rast.shape)
+
+    # Picking up values reference values needed to export to geotif
+    Projection = osr.SpatialReference()
+    Projection.ImportFromWkt(pop_data_14.GetProjectionRef())
+
+    geoTransform = pop_data_14.GetGeoTransform()
+
+    driver = gdal.GetDriverByName('GTiff')
+
+    dst_ds = driver.Create('test_tiff_3.tif', xsize=super_final_rast.shape[1], ysize=super_final_rast.shape[0],
+                           bands=1, eType=gdal.GDT_Float32)
+
+    dst_ds.SetGeoTransform((
+        geoTransform[0],  # x_min
+        geoTransform[1],  # pixel width
+        geoTransform[2],  # rotation
+        geoTransform[3],  # y_max
+        geoTransform[4],  # rotation
+        geoTransform[5]  # pixel height
+    ))
+
+    dst_ds.SetProjection(Projection.ExportToWkt())
+    dst_ds.GetRasterBand(1).WriteArray(super_final_rast)
+    dst_ds.FlushCache()  # Write to disk.
+
 
 
 if __name__ == '__main__':

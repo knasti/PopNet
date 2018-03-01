@@ -34,11 +34,11 @@ class PopModel(BaseModel):
         # conv2_flat = tf.reshape(conv2, [None, 32 * 32 * 48])
         dense1 = tf.layers.dense(inputs=conv2, units=1024, activation=tf.nn.relu)
 
-        y = tf.layers.dense(inputs=dense1, units=1)
+        self.y = tf.layers.dense(inputs=dense1, units=1)
 
         with tf.name_scope("loss"):
             # TensorFlow function for root mean square error
-            self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, y))))
+            self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
 
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.root_mean_square_err,

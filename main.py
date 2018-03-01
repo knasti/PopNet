@@ -189,38 +189,16 @@ with tf.Session() as sess:
         y_pred = sess.run(y, feed_dict={x: x_data[i]})
         y_pred = y_pred.reshape(batch_size, poph_1.chunk_height, poph_1.chunk_width)
 
-
-
         for j in range(batch_size):
-
             if poph_1.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
                 cur_row += 1
                 cur_col = 0
-
-            # print('im y_pred shape {}'.format(y_pred.shape))
-            # print('im cur_row {}'.format(cur_row))
-            # print('im cur_col {}'.format(cur_col))
-            # print(poph_1.chunk_cols)
 
             final_raster[cur_row * poph_1.chunk_height: (cur_row + 1) * poph_1.chunk_height,
             cur_col * poph_1.chunk_width: (cur_col + 1) * poph_1.chunk_width] = \
                 y_pred[j, :, :]
 
-            # try:
-            #     final_raster[cur_row * poph_1.chunk_height: (cur_row + 1) * poph_1.chunk_height, cur_col * poph_1.chunk_width: (cur_col + 1) * poph_1.chunk_width] = \
-            #         y_pred[j,:,:]
-            # except ValueError:
-            #     print(i)
-            #     print(j)
-            #     print(final_raster.shape)
-            #     print(y_pred.shape)
-
             cur_col += 1
-
-    print(np.max(final_raster))
-    print(np.min(final_raster))
-    print(final_raster.shape)
-
 
 
 # Calculating back to population
@@ -233,37 +211,6 @@ print(np.max(super_final_rast))
 print(np.min(super_final_rast))
 print(super_final_rast.shape)
 
-
-# Train Test Split randomly with scikit-learn
-# if np.sum(x_data) = np.sum(x_data_original) + pop_dif_yearX_yearY)
-# x_data = pop_arr_10
-# y_true = pop_arr_14
-
-
-
-# Create batches
-# 1 batch = 100x100 cells
-# batch_size = 64
-# num_batches = int(round(min(x_train.shape) / batch_size))  # will always round down / floor
-#
-# for i in range(num_batches):
-#     x_train
-#     y_train
-# print(num_batches)
-
-# def next_batch(batch_size):
-#     num_batches =
-#     x = self.training_images[self.i:self.i + batch_size].reshape(100, 32, 32, 3)
-#     y = self.training_labels[self.i:self.i + batch_size]
-#     self.i = (self.i + batch_size) % len(self.training_images)
-
-
-#
-# print(x_train.shape)
-# print(min(x_train.shape))
-# print(x_test.shape)
-# print(y_train.shape)
-# print(y_test.shape)
 
 
 # Picking up values reference values needed to export to geotif

@@ -101,8 +101,6 @@ class PrepData():
         self.chunk_cols = int(self.x_data.shape[1] / self.chunk_width)
         self.no_chunks = int(self.chunk_rows * self.chunk_cols)
 
-        print(self.x_data.shape)
-
         cur_row = 0
         cur_col = 0
 
@@ -142,7 +140,6 @@ class PrepData():
         batch_num = self.no_chunks // self.batch_size
         x = []
         for i in range(batch_num):
-            print(self.x_data.shape)
             x.append(self.x_data[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
 
         return x, batch_num
