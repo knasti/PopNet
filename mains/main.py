@@ -73,12 +73,13 @@ def main():
 
     print(data.train_data)
 
-    # create tensorboard logger
+    # Create Tensorboard logger
     logger = Logger(sess, config)
-    # create trainer and path all previous components to it
+
+    # Create trainer and path all previous components to it
     trainer = PopTrainer(sess, model, data, config, logger)
 
-    # here you train your model
+    # Train model
     trainer.train()
 
 

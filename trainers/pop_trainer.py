@@ -8,10 +8,10 @@ class PopTrainer(BaseTrain):
         super(PopTrainer, self).__init__(sess, model, data, config, logger)
 
     def train_epoch(self):
-        num_batches = tqdm(range(self.config.num_iter_per_epoch))
+        num_batches = tqdm(range(self.data.num_train_batches))
         losses=[]
 
-        for i in num_batches:
+        for _ in num_batches:
             loss = self.train_step()
             losses.append(loss)
 
