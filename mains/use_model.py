@@ -90,14 +90,15 @@ def main():
                 cur_col += 1
 
     # Calculating back to population
-    norm_sum = np.sum(final_raster)
-    final_pop = np.sum(pop_arr_14)
+    # norm_sum = np.sum(final_raster)
+    # final_pop = np.sum(pop_arr_14)
+    #
+    # final_raster = (final_raster / norm_sum) * final_pop
 
-    super_final_rast = (final_raster / norm_sum) * final_pop
+    print(np.max(final_raster))
+    print(np.min(final_raster))
+    print(final_raster.shape)
 
-    print(np.max(super_final_rast))
-    print(np.min(super_final_rast))
-    print(super_final_rast.shape)
 
     # Picking up values reference values needed to export to geotif
     Projection = osr.SpatialReference()
@@ -107,7 +108,7 @@ def main():
 
     driver = gdal.GetDriverByName('GTiff')
 
-    dst_ds = driver.Create('test_tiff_3.tif', xsize=super_final_rast.shape[1], ysize=super_final_rast.shape[0],
+    dst_ds = driver.Create('test_tiff_3.tif', xsize=final_raster.shape[1], ysize=final_raster.shape[0],
                            bands=1, eType=gdal.GDT_Float32)
 
     dst_ds.SetGeoTransform((
@@ -120,7 +121,7 @@ def main():
     ))
 
     dst_ds.SetProjection(Projection.ExportToWkt())
-    dst_ds.GetRasterBand(1).WriteArray(super_final_rast)
+    dst_ds.GetRasterBand(1).WriteArray(final_raster)
     dst_ds.FlushCache()  # Write to disk.
 
 

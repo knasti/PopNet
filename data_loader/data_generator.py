@@ -22,13 +22,13 @@ class DataGenerator():
     def create_traintest_data(self):
         self.preptraintest.create_chunks()
         self.preptraintest.create_train_test_split()
-        self.preptraintest.normalize_data()
+        # self.preptraintest.normalize_data()
         self.train_data, self.train_labels, self.num_train_batches = self.preptraintest.train_batches()
         self.test_data, self.test_labels, self.num_test_batches = self.preptraintest.test_batches()
 
     def create_data(self):
         self.prepdata.create_chunks()
-        self.prepdata.normalize_data()
+        # self.prepdata.normalize_data()
         self.input, self.batch_num = self.prepdata.create_batches()
 
     def next_train_batch(self):
@@ -121,8 +121,8 @@ class PrepData():
             to_be_y_true[i, :, :] = y_chunk
 
             cur_col += 1
-        to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
-        to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        to_be_y_true = to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
         self.x_data = to_be_x_data
         self.y_true = to_be_y_true
 
@@ -213,8 +213,8 @@ class PrepTrainTest():
             to_be_y_true[i, :, :] = y_chunk
 
             cur_col += 1
-        to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
-        to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+        to_be_y_true = to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
         self.x_data = to_be_x_data
         self.y_true = to_be_y_true
 
@@ -222,7 +222,7 @@ class PrepTrainTest():
         # Creating train test split
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(self.x_data, self.y_true, test_size=0.3, random_state=101)
 
-        # Stores the shapes to restore them after the normalization
+        # Stores the shapes to restore them (after the normalization)
         self.no_train_chunks = self.x_train.shape[0]
         self.no_test_chunks = self.x_test.shape[0]
 
@@ -248,8 +248,8 @@ class PrepTrainTest():
         y = []
 
         for i in range(num_train_batch):
-            x.append(self.x_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
-            y.append(self.y_train[i * self.batch_size:(i + 1) * self.batch_size, :, :, :])
+            x.append(self.x_train[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
+            y.append(self.y_train[i * self.batch_size: (i + 1) * self.batch_size, :, :, :])
 
         return x, y, num_train_batch
 
