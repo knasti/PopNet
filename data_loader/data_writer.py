@@ -10,7 +10,10 @@ class DataWriter():
         self.raster = raster
         self.output_dir = output_dir
 
+
     def write_geotif(self):
+        output = os.path.join(self.output_dir, 'output.tif')
+
         # Picking up values reference values needed to export to geotif
         projection = osr.SpatialReference()
         projection.ImportFromWkt(self.geotif.GetProjectionRef())
@@ -20,7 +23,7 @@ class DataWriter():
 
         driver = gdal.GetDriverByName('GTiff')
 
-        dst_ds = driver.Create('test_tiff_4.tif', xsize=self.raster.shape[1], ysize=self.raster.shape[0],
+        dst_ds = driver.Create(output, xsize=self.raster.shape[1], ysize=self.raster.shape[0],
                                bands=1, eType=gdal.GDT_Float32)
 
         dst_ds.SetGeoTransform((

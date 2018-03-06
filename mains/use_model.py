@@ -37,9 +37,9 @@ def main():
     preptt = PrepTrainTest(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
     prepd = PrepData(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
 
+    # create the experiments output dir
+    create_dirs([config.output_dir])
 
-    # create the experiments dirs
-    create_dirs([config.summary_dir, config.checkpoint_dir])
     # create tensorflow session
     sess = tf.Session()
     # create instance of the model you want
@@ -87,7 +87,7 @@ def main():
     print(np.min(final_raster))
     print(final_raster.shape)
 
-    data_writer = DataWriter(data_loader.geotif[0], final_raster, 'XX')
+    data_writer = DataWriter(data_loader.geotif[0], final_raster, config.output_dir)
     data_writer.write_geotif()
 
 
