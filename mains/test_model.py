@@ -36,7 +36,6 @@ def main():
     preptt = PrepTrainTest(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
     prepd = PrepData(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
 
-
     # create the experiments dirs
     create_dirs([config.summary_dir, config.checkpoint_dir])
     # create tensorflow session
@@ -55,13 +54,10 @@ def main():
     logger = Logger(sess, config)
 
     # Create trainer and path all previous components to it
-    trainer = PopTrainer(sess, model, data, config, logger)
-
-    # Train model
-    trainer.train()
+    tester = PopTrainer(sess, model, data, config, logger)
 
     # Test model
-
+    tester.test()
 
 
 if __name__ == '__main__':
