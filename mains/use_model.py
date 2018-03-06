@@ -28,7 +28,7 @@ def main():
     if args.config != 'None':
         config = process_config(args.config)
     else:
-        config = process_config(os.path.join(config_dir, 'example.json'))
+        config = process_config(os.path.join(config_dir, 'config.json'))
 
     data_loader = DataLoader(data_dir)
     data_loader.load_directory('.tif')
