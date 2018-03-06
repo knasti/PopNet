@@ -45,8 +45,8 @@ def main():
     pop_arr_14[pop_arr_14 < 0] = 0
     pop_arr_15[pop_arr_15 < 0] = 0
 
-    preptt = PrepTrainTest(pop_arr_10, pop_arr_14, config.batch_size)
-    prepd = PrepData(pop_arr_10, pop_arr_14, config.batch_size)
+    preptt = PrepTrainTest(pop_arr_10, pop_arr_14, config.batch_size, config.chunk_height, config.chunk_width)
+    prepd = PrepData(pop_arr_10, pop_arr_14, config.batch_size, config.chunk_height, config.chunk_width)
 
 
     # create the experiments dirs

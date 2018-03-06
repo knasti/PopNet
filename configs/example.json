@@ -3,5 +3,7 @@
   "num_epochs": 10,
   "learning_rate": 0.001,
   "batch_size": 16,
-  "max_to_keep":5
+  "max_to_keep":5,
+  "chunk_height": 32,
+  "chunk_width": 32
 }

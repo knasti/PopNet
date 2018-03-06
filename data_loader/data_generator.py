@@ -10,14 +10,7 @@ class DataGenerator():
         self.config = config
         self.preptraintest = preptraintest
         self.prepdata = prepdata
-        # self.train_data = None
-        # self.train_labels = None
-        # self.num_train_batches = None
-        # self.test_data = None
-        # self.test_labels = None
-        # self.num_test_batches = None
-        # self.input = None
-        # self.batch_num = None
+
 
     def create_traintest_data(self):
         self.preptraintest.create_chunks()
@@ -60,7 +53,7 @@ class DataGenerator():
 
 
 class PrepData():
-    def __init__(self, x_data, y_true, batch_size, chunk_height=32, chunk_width=32):
+    def __init__(self, x_data, y_true, batch_size, chunk_height, chunk_width):
         self.x_data = x_data
         self.y_true = y_true
         self.batch_size = batch_size
@@ -146,7 +139,7 @@ class PrepData():
 
 
 class PrepTrainTest():
-    def __init__(self, x_data, y_true, batch_size, chunk_height=32, chunk_width=32):
+    def __init__(self, x_data, y_true, batch_size, chunk_height, chunk_width):
         self.x_data = x_data
         self.y_true = y_true
         self.batch_size = batch_size
