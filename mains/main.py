@@ -6,6 +6,7 @@ import sys
 import numpy as np
 
 from data_loader.data_generator import DataGenerator, PrepData, PrepTrainTest
+from data_loader.data_loader import DataLoader
 from models.pop_model import PopModel
 from trainers.pop_trainer import PopTrainer
 from utils.config import process_config
@@ -28,25 +29,12 @@ def main():
     else:
         config = process_config(os.path.join(config_dir, 'example.json'))
 
-    # Loads the geotiff
-    pop_data_10 = gdal.Open(os.path.join(data_dir, 'TGO10v4.tif'))
-    pop_data_14 = gdal.Open(os.path.join(data_dir, 'TGO14adjv1.tif'))
-    pop_data_15 = gdal.Open(os.path.join(data_dir, 'TGO15adjv4.tif'))
+    data_loader = DataLoader(data_dir)
+    data_loader.load_directory('.tif')
+    data_loader.create_np_arrays()
 
-    # Store the values of the geotif into a np.array
-    pop_arr_10 = np.array(pop_data_10.GetRasterBand(1).ReadAsArray())
-    pop_arr_10 = np.delete(pop_arr_10, -1, axis=1)  # Shape not the same as pop data from 14 and 15
-
-    pop_arr_14 = np.array(pop_data_14.GetRasterBand(1).ReadAsArray())
-    pop_arr_15 = np.array(pop_data_15.GetRasterBand(1).ReadAsArray())
-
-    # Null-values (neg-values) are replaced with zeros
-    pop_arr_10[pop_arr_10 < 0] = 0
-    pop_arr_14[pop_arr_14 < 0] = 0
-    pop_arr_15[pop_arr_15 < 0] = 0
-
-    preptt = PrepTrainTest(pop_arr_10, pop_arr_14, config.batch_size, config.chunk_height, config.chunk_width)
-    prepd = PrepData(pop_arr_10, pop_arr_14, config.batch_size, config.chunk_height, config.chunk_width)
+    preptt = PrepTrainTest(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
+    prepd = PrepData(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
 
 
     # create the experiments dirs
