@@ -1,6 +1,5 @@
 import numpy as np
 import os
-import sys
 from osgeo import gdal
 
 class DataLoader():
@@ -9,6 +8,7 @@ class DataLoader():
         self.data_dir = data_dir
         self.files = []
         self.arrays = []
+        self.geotif = []
 
     def load_directory(self, ext):
         for file in os.listdir(self.data_dir):
@@ -30,6 +30,7 @@ class DataLoader():
     def create_np_arrays(self):
         for file in self.files:
             pop_data = gdal.Open(os.path.join(self.data_dir, file))
+            self.geotif.append(pop_data)
             array = np.array(pop_data.GetRasterBand(1).ReadAsArray())
             # Null-values (neg-values) are replaced with zeros
             array[array < 0] = 0

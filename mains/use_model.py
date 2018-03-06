@@ -7,6 +7,7 @@ import numpy as np
 
 from data_loader.data_generator import DataGenerator, PrepData, PrepTrainTest
 from data_loader.data_loader import DataLoader
+from data_loader.data_writer import DataWriter
 from models.pop_model import PopModel
 from trainers.pop_trainer import PopTrainer
 from utils.config import process_config
@@ -86,31 +87,34 @@ def main():
     print(np.min(final_raster))
     print(final_raster.shape)
 
+    data_writer = DataWriter(data_loader.geotif[0], final_raster, 'XX')
+    data_writer.write_geotif()
 
-    # Picking up values reference values needed to export to geotif
-    Projection = osr.SpatialReference()
-    Projection.ImportFromWkt(pop_data_14.GetProjectionRef())
 
-    geoTransform = pop_data_14.GetGeoTransform()
-
-    driver = gdal.GetDriverByName('GTiff')
-
-    dst_ds = driver.Create('test_tiff_3.tif', xsize=final_raster.shape[1], ysize=final_raster.shape[0],
-                           bands=1, eType=gdal.GDT_Float32)
-
-    dst_ds.SetGeoTransform((
-        geoTransform[0],  # x_min
-        geoTransform[1],  # pixel width
-        geoTransform[2],  # rotation
-        geoTransform[3],  # y_max
-        geoTransform[4],  # rotation
-        geoTransform[5]  # pixel height
-    ))
-
-    dst_ds.SetProjection(Projection.ExportToWkt())
-    dst_ds.GetRasterBand(1).WriteArray(final_raster)
-    dst_ds.FlushCache()  # Write to disk.
-
+    # # Picking up values reference values needed to export to geotif
+    # Projection = osr.SpatialReference()
+    # Projection.ImportFromWkt(pop_data_14.GetProjectionRef())
+    #
+    # geoTransform = pop_data_14.GetGeoTransform()
+    #
+    # driver = gdal.GetDriverByName('GTiff')
+    #
+    # dst_ds = driver.Create('test_tiff_3.tif', xsize=final_raster.shape[1], ysize=final_raster.shape[0],
+    #                        bands=1, eType=gdal.GDT_Float32)
+    #
+    # dst_ds.SetGeoTransform((
+    #     geoTransform[0],  # x_min
+    #     geoTransform[1],  # pixel width
+    #     geoTransform[2],  # rotation
+    #     geoTransform[3],  # y_max
+    #     geoTransform[4],  # rotation
+    #     geoTransform[5]  # pixel height
+    # ))
+    #
+    # dst_ds.SetProjection(Projection.ExportToWkt())
+    # dst_ds.GetRasterBand(1).WriteArray(final_raster)
+    # dst_ds.FlushCache()  # Write to disk.
+    #
 
 
 if __name__ == '__main__':
