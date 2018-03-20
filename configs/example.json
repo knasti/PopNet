@@ -1,6 +1,6 @@
 {
   "exp_name": "togo",
-  "num_epochs": 10,
+  "num_epochs": 2,
   "learning_rate": 0.001,
   "batch_size": 16,
   "max_to_keep":5,

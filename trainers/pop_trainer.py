@@ -10,7 +10,7 @@ class PopTrainer(BaseTrain):
     def train_epoch(self):
         num_batches = tqdm(range(self.data.num_train_batches))
         losses=[]
-
+        print('Training epoch')
         for _ in num_batches:
             loss = self.train_step()
             losses.append(loss)
@@ -18,11 +18,13 @@ class PopTrainer(BaseTrain):
         loss=np.mean(losses)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
+        print('im train cur_it {}'.format(cur_it))
         summaries_dict = {}
         summaries_dict['loss'] = loss
 
         self.logger.summarize(cur_it, summaries_dict=summaries_dict)
         self.model.save(self.sess)
+
 
     def train_step(self):
         batch_x, batch_y = next(self.data.next_train_batch())
@@ -35,6 +37,7 @@ class PopTrainer(BaseTrain):
         num_batches = tqdm(range(self.data.num_test_batches))
         losses=[]
 
+        print('testing epoch')
         for _ in num_batches:
             loss = self.test_step()
             losses.append(loss)
@@ -42,6 +45,7 @@ class PopTrainer(BaseTrain):
         loss=np.mean(losses)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
+        print('im test cur_it {}'.format(cur_it))
         summaries_dict = {}
         summaries_dict['loss'] = loss
 
