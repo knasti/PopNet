@@ -9,6 +9,7 @@ class DataLoader():
         self.files = []
         self.arrays = []
         self.geotif = []
+        self.data_label_pairs = []
 
     def load_directory(self, ext):
         for file in os.listdir(self.data_dir):
@@ -36,3 +37,11 @@ class DataLoader():
             array[array < 0] = 0
             self.arrays.append(array)
 
+    def create_data_label_pairs(self):
+        # Runs through all the files found
+        for i in range(len(self.arrays)):
+            try:
+                # Pairs the adjacent arrays (0-1, 1-2, 2-3 etc. where (data-label)) in a new pair-list
+                self.data_label_pairs.append([self.arrays[i], self.arrays[i + 1]])
+            except:
+                break

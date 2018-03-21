@@ -32,27 +32,41 @@ def main():
     data_loader = DataLoader(data_dir)
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
+    data_loader.create_data_label_pairs()
 
-    preptt = PrepTrainTest(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
-    prepd = PrepData(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
+    preptt = PrepTrainTest(config.batch_size, config.chunk_height, config.chunk_width)
+    prepd = PrepData(config.batch_size, config.chunk_height, config.chunk_width)
+
+    for i in range(len(data_loader.data_label_pairs)):
+        x_data = data_loader.data_label_pairs[i][0]
+        y_true = data_loader.data_label_pairs[i][1]
+
+        preptt.add_data(x_data, y_true)
+        prepd.add_data(x_data, y_true)
 
 
-    # create the experiments dirs
+    # Create the experiments dirs
     create_dirs([config.summary_dir, config.checkpoint_dir])
-    # create tensorflow session
+
+    # Create tensorflow session
     sess = tf.Session()
-    # create instance of the model you want
+
+    # Create instance of the model you want
     model = PopModel(config)
-    #load model if exist
+
+    # Load model if exist
     model.load(sess)
-    # create your data generator
+
+    # Create Tensorboard logger
+    logger = Logger(sess, config)
+
+    # Create your data generator
     data = DataGenerator(config, preptt, prepd)
 
     data.create_traintest_data()
     data.create_data()
 
-    # Create Tensorboard logger
-    logger = Logger(sess, config)
+
 
     # Create trainer and path all previous components to it
     trainer = PopTrainer(sess, model, data, config, logger)

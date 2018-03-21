@@ -10,7 +10,7 @@ class PopTrainer(BaseTrain):
     def train_epoch(self):
         num_batches = tqdm(range(self.data.num_train_batches))
         losses=[]
-        print('Training epoch')
+
         for _ in num_batches:
             loss = self.train_step()
             losses.append(loss)
@@ -37,7 +37,6 @@ class PopTrainer(BaseTrain):
         num_batches = tqdm(range(self.data.num_test_batches))
         losses=[]
 
-        print('testing epoch')
         for _ in num_batches:
             loss = self.test_step()
             losses.append(loss)
