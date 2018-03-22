@@ -18,21 +18,21 @@ class PopModel(BaseModel):
         # Network architecture
         conv1 = tf.layers.conv2d(
             inputs=self.x,
-            filters=32,
+            filters=6,
             kernel_size=[5, 5],
             padding="same",
             activation=tf.nn.relu)
 
         conv2 = tf.layers.conv2d(
             inputs=conv1,
-            filters=48,
+            filters=6,
             kernel_size=[5, 5],
             padding="same",
             activation=tf.nn.relu)
 
         # MÅSKE VI SKAL BRUGE POOLING FOR AT GÅ FRA 48 I SIDSTE DIMENSION TIL 1?
         # conv2_flat = tf.reshape(conv2, [None, 32 * 32 * 48])
-        dense1 = tf.layers.dense(inputs=conv2, units=1024, activation=tf.nn.relu)
+        dense1 = tf.layers.dense(inputs=conv2, units=32, activation=tf.nn.relu)
 
         self.y = tf.layers.dense(inputs=dense1, units=1)
 
