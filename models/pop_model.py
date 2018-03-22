@@ -12,8 +12,8 @@ class PopModel(BaseModel):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[None, 32, 32, 1])
-        self.y_true = tf.placeholder(tf.float32, shape=[None, 32, 32, 1])
+        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1])
+        self.y_true = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1])
 
         # Network architecture
         conv1 = tf.layers.conv2d(
