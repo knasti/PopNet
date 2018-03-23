@@ -2,8 +2,8 @@
   "exp_name": "togo",
   "num_epochs": 1,
   "learning_rate": 0.001,
-  "batch_size": 1,
+  "batch_size": 16,
   "max_to_keep":5,
-  "chunk_height": 4,
-  "chunk_width": 4
+  "chunk_height": 32,
+  "chunk_width": 32
 }

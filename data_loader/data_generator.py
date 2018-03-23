@@ -5,8 +5,11 @@ from sklearn.preprocessing import MinMaxScaler
 class DataGenerator():
     def __init__(self, config, preptraintest, prepdata):
         self.i = 0
+        self.tot_i = 0
         self.i_train = 0
+        self.tot_i_train = 0
         self.i_test = 0
+        self.tot_i_test = 0
         self.pair_no = 0
         self.config = config
         self.preptraintest = preptraintest
@@ -27,36 +30,44 @@ class DataGenerator():
 
     def next_train_batch(self):
         train_id = self.i_train
+        pair_no = self.pair_no  # determines which pair we are on (1975-1990 (0), 1990-2000 (1) or 2000-2010 (2))
 
-        if train_id > self.list_num_train_batches[self.pair_no]:
-            self.pair_no += 1
-            self.train_id = 0
-        pair_no = self.pair_no  # which pair are we on (1975-1990 (0), 1990-2000 (1) or 2000-2010 (2))
+        self.i_train += 1  # Will always be 1 larger than train_id, from here
+        self.tot_i_train +=1  # Determines when to reset both train id and pair no (when finished with one epoch)
 
-        self.i_train += 1
-
-        if self.num_train_batches == self.i_train:
+        # Batches in the current pair
+        if self.i_train == self.list_num_train_batches[self.pair_no]:
             self.i_train = 0
+            self.pair_no += 1
+
+
+        # Total amount of batches
+        if self.tot_i_train == self.num_train_batches:
+            self.i_train = 0
+            self.tot_i_train = 0
             self.pair_no = 0
 
-        # yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
+        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
 
-        try:
-            yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
-        except IndexError:
-            hello = '!!!'
+        # try:
+        #     yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
+        # except IndexError:
+        #     hello = '!!!'
 
     def next_test_batch(self):
         test_id = self.i_test
-
-        if test_id > self.list_num_test_batches[self.pair_no]:
-            self.pair_no += 1
-        pair_no = self.pair_no  # which pair are we on (1975-1990 (0), 1990-2000 (1) or 2000-2010 (2))
+        pair_no = self.pair_no  # determines which pair we are on (1975-1990 (0), 1990-2000 (1) or 2000-2010 (2))
 
         self.i_test += 1
+        self.tot_i_test += 1
 
-        if self.num_test_batches == self.i_test:
+        if self.i_test == self.list_num_test_batches[self.pair_no]:
             self.i_test = 0
+            self.pair_no += 1
+
+        if self.tot_i_test == self.num_test_batches:
+            self.i_test = 0
+            self.tot_i_test = 0
             self.pair_no = 0
 
         yield self.test_data[pair_no][test_id], self.test_labels[pair_no][test_id]
