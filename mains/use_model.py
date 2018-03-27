@@ -37,16 +37,19 @@ def main():
     preptt = PrepTrainTest(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
     prepd = PrepData(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
 
-    # create the experiments output dir
+    # Create the experiments output dir
     create_dirs([config.output_dir])
 
-    # create tensorflow session
+    # Create tensorflow session
     sess = tf.Session()
-    # create instance of the model you want
+
+    # Create instance of the model
     model = PopModel(config)
-    #load model if exist
+
+    # Load model if exist
     model.load(sess)
-    # create your data generator
+
+    # Create data generator
     data = DataGenerator(config, preptt, prepd)
 
     data.create_data()
