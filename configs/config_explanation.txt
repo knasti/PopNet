@@ -1,0 +1,10 @@
+{
+  "exp_name": "togo", # Name of the experiment folder, country / region / world
+  "sub_exp": "new", # Sub experiment under the exp_name. Can be "new" or an existing folder sub folder
+  "num_epochs": 1, # Number of epochs
+  "learning_rate": 0.001, # Learning rate, how fast should the gradient descent decline
+  "batch_size": 16, # Batch size, how many chunks are put in at a time
+  "max_to_keep": 5, #
+  "chunk_height": 32, # Chunk height of the chunks
+  "chunk_width": 32 # Chunk width of the chunks
+}
