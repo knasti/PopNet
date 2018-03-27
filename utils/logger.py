@@ -42,3 +42,23 @@ class Logger():
                 for summary in summary_list:
                     summary_writer.add_summary(summary, step)
                 summary_writer.flush()
+
+    def log_config(self):
+        # Saves the configurations for the current sub_experiment
+        with open(os.path.join("../experiments", self.config.exp_name, self.config.sub_exp, "config.txt"), "a") as f:
+            f.write('Experiment: ' + self.config.exp_name)
+            f.write('\n')
+            f.write('Sub experiment: ' + self.config.sub_exp)
+            f.write('\n')
+            f.write('Number of epochs: ' + str(self.config.num_epochs))
+            f.write('\n')
+            f.write('Learning rate: ' + str(self.config.learning_rate))
+            f.write('\n')
+            f.write('Batch size: ' + str(self.config.batch_size))
+            f.write('\n')
+            f.write('Max to keep: ' + str(self.config.max_to_keep))
+            f.write('\n')
+            f.write('Chunk height: ' + str(self.config.chunk_height))
+            f.write('\n')
+            f.write('Chunk width: ' + str(self.config.chunk_width))
+            f.write('\n')

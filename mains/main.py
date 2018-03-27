@@ -19,6 +19,7 @@ sys.path.append(base_dir)
 data_dir = os.path.relpath('..\\data', base_dir)
 config_dir = os.path.relpath('..\\configs', base_dir)
 
+
 def main():
     # capture the config path from the run arguments
     # then process the json configration file
@@ -59,6 +60,7 @@ def main():
 
     # Create Tensorboard logger
     logger = Logger(sess, config)
+    logger.log_config()
 
     # Create your data generator
     data = DataGenerator(config, preptt, prepd)

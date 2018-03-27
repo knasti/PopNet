@@ -26,15 +26,17 @@ def process_config(jsonfile):
 
     if config.sub_exp == 'new':
         sub_exp_name = 'experiment_{}'.format(str(len(existing_sub_exp) + 1))
+        config.sub_exp = sub_exp_name
         config.summary_dir = os.path.join("../experiments", config.exp_name, sub_exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, sub_exp_name, "checkpoint/")
         config.output_dir = os.path.join("../experiments", config.exp_name, sub_exp_name, "outputs/")
+
     elif config.sub_exp in existing_sub_exp:
         config.summary_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "checkpoint/")
         config.output_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/")
     else:
-        print('Sub experiment does not exist')
+        print('sub experiment does not exist')
         exit()
 
     return config
