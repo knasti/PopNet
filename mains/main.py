@@ -39,15 +39,12 @@ def main():
     data_loader.create_data_label_pairs()
 
     preptt = PrepTrainTest(config.batch_size, config.chunk_height, config.chunk_width)
-    prepd = PrepData(config.batch_size, config.chunk_height, config.chunk_width)
 
     for i in range(len(data_loader.data_label_pairs)):
         x_data = data_loader.data_label_pairs[i][0]
         y_true = data_loader.data_label_pairs[i][1]
 
         preptt.add_data(x_data, y_true)
-        prepd.add_data(x_data, y_true)
-
 
     # Create the experiments dirs
     create_dirs([config.summary_dir, config.checkpoint_dir])
@@ -66,10 +63,9 @@ def main():
     logger.log_config()
 
     # Create your data generator
-    data = DataGenerator(config, preptt, prepd)
+    data = DataGenerator(config, preptraintest = preptt)
 
     data.create_traintest_data()
-    data.create_data()
 
     # Create trainer and path all previous components to it
     trainer = PopTrainer(sess, model, data, config, logger)

@@ -51,7 +51,7 @@ def main():
     model.load(sess)
 
     # Create data generator
-    data = DataGenerator(config, preptt, prepd)
+    data = DataGenerator(config, prepdata = prepd)
 
     rasters = []
 

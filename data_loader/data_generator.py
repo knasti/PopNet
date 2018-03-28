@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 class DataGenerator():
-    def __init__(self, config, preptraintest, prepdata):
+    def __init__(self, config, preptraintest = None, prepdata = None):
         self.i = 0
         self.tot_i = 0
         self.i_train = 0
