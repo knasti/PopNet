@@ -36,7 +36,7 @@ def main():
     prepd = PrepData(config.batch_size, config.chunk_height, config.chunk_width)
 
     preptt.add_data(data_loader.arrays[-1], data_loader.arrays[-1])  # SHOULDNT NEED THIS AS PrepData should be able to handle it alone
-    prepd.add_data(data_loader.arrays[-1], data_loader.arrays[-1])
+    prepd.add_data(data_loader.arrays[-1])
 
     # Create the experiments output dir
     create_dirs([config.output_dir])
@@ -53,47 +53,54 @@ def main():
     # Create data generator
     data = DataGenerator(config, preptt, prepd)
 
-    data.create_data()
+    rasters = []
 
     with sess:
-        # Restore the model
-        cur_row = 0
-        cur_col = 0
+        for i in range(config.num_outputs):
+            data.create_data()
 
-        chunk_height = data.prepdata.chunk_height
-        chunk_width = data.prepdata.chunk_width
+            cur_row = 0
+            cur_col = 0
 
-        chunk_rows = data.prepdata.chunk_rows
-        chunk_cols = data.prepdata.chunk_cols
+            chunk_height = data.prepdata.chunk_height
+            chunk_width = data.prepdata.chunk_width
 
-        final_raster = np.empty((chunk_rows * chunk_height, chunk_cols * chunk_width))
+            chunk_rows = data.prepdata.chunk_rows
+            chunk_cols = data.prepdata.chunk_cols
 
-        for i in range(data.batch_num):
-            y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
-            y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
+            output_raster = np.empty((chunk_rows * chunk_height, chunk_cols * chunk_width))
 
-            for j in range(config.batch_size):
-                if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
-                    cur_row += 1
-                    cur_col = 0
+            for i in range(data.batch_num):
+                y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
+                y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
 
-                final_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
-                    y_pred[j, :, :]
+                for j in range(config.batch_size):
+                    if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                        cur_row += 1
+                        cur_col = 0
 
-                cur_col += 1
+                    output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
+                        y_pred[j, :, :]
+
+                    cur_col += 1
+
+            # Removes the previous input data
+            data.prepdata.x_data = []
+            data.prepdata.add_data(output_raster)
+            rasters.append(output_raster)
 
     # Calculating back to population
-    # norm_sum = np.sum(final_raster)
+    # norm_sum = np.sum(output_raster)
     # final_pop = np.sum(pop_arr_14)
     #
-    # final_raster = (final_raster / norm_sum) * final_pop
+    # output_raster = (output_raster / norm_sum) * final_pop
 
-    print(np.max(final_raster))
-    print(np.min(final_raster))
-    print(final_raster.shape)
+            print(np.max(output_raster))
+            print(np.min(output_raster))
+            print(output_raster.shape)
 
-    data_writer = DataWriter(data_loader.geotif[0], final_raster, config.output_dir)
-    data_writer.write_geotif()
+            data_writer = DataWriter(data_loader.geotif[0], output_raster, config)
+            data_writer.write_geotif()
 
 
     # # Picking up values reference values needed to export to geotif
@@ -104,7 +111,7 @@ def main():
     #
     # driver = gdal.GetDriverByName('GTiff')
     #
-    # dst_ds = driver.Create('test_tiff_3.tif', xsize=final_raster.shape[1], ysize=final_raster.shape[0],
+    # dst_ds = driver.Create('test_tiff_3.tif', xsize=output_raster.shape[1], ysize=output_raster.shape[0],
     #                        bands=1, eType=gdal.GDT_Float32)
     #
     # dst_ds.SetGeoTransform((
@@ -117,7 +124,7 @@ def main():
     # ))
     #
     # dst_ds.SetProjection(Projection.ExportToWkt())
-    # dst_ds.GetRasterBand(1).WriteArray(final_raster)
+    # dst_ds.GetRasterBand(1).WriteArray(output_raster)
     # dst_ds.FlushCache()  # Write to disk.
     #
 

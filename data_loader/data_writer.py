@@ -5,14 +5,22 @@ from osgeo import gdal
 
 class DataWriter():
 
-    def __init__(self, geotif, raster, output_dir):
+    def __init__(self, geotif, raster, config):
         self.geotif = geotif
         self.raster = raster
-        self.output_dir = output_dir
+        self.config = config
+        self.output_dir = config.output_dir
+
 
 
     def write_geotif(self):
-        output = os.path.join(self.output_dir, 'output.tif')
+        # Finds the number of outputs
+        output_nr = 0
+        for file in os.listdir(self.output_dir):
+            if file.endswith(".tif"):
+                output_nr += 1
+
+        output = os.path.join(self.output_dir, 'output_{}.tif'.format(output_nr))
 
         # Picking up values reference values needed to export to geotif
         projection = osr.SpatialReference()

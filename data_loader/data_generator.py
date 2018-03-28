@@ -15,7 +15,6 @@ class DataGenerator():
         self.preptraintest = preptraintest
         self.prepdata = prepdata
 
-
     def create_traintest_data(self):
         self.preptraintest.create_chunks()
         self.preptraintest.create_train_test_split()
@@ -84,13 +83,12 @@ class DataGenerator():
             self.i = 0
             self.pair_no = 0
 
-        yield self.input[pair_no][id], self.input[pair_no][id]
+        yield self.input[pair_no][id]
 
 
 class PrepData():
     def __init__(self, batch_size, chunk_height, chunk_width):
         self.x_data = []
-        self.y_true = []
         self.batch_size = batch_size
         self.chunk_height = chunk_height
         self.chunk_width = chunk_width
@@ -114,19 +112,6 @@ class PrepData():
                 # Adds columns until the input data matches with the chunk width
                 self.x_data[i] = np.c_[self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_height - rest_cols))]
 
-            # LABEL (should give the same result as above)
-            # Takes the number of rows MOD the chunk height to determine if we need to add extra rows (padding)
-            rest_rows = self.y_true[i].shape[0] % self.chunk_height
-            if rest_rows != 0:
-                # Adds rows until the input data matches with the chunk height
-                self.y_true[i] = np.r_[self.y_true[i], np.zeros((self.chunk_height - rest_rows, self.y_true[i].shape[1]))]
-
-            # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
-            rest_cols = self.y_true[i].shape[1] % self.chunk_width
-            if rest_rows != 0:
-                # Adds columns until the input data matches with the chunk width
-                self.y_true[i] = np.c_[self.y_true[i], np.zeros((self.y_true[i].shape[0], self.chunk_height - rest_cols))]
-
             self.chunk_rows = int(self.x_data[i].shape[0] / self.chunk_height)
             self.chunk_cols = int(self.x_data[i].shape[1] / self.chunk_width)
             self.no_chunks = int(self.chunk_rows * self.chunk_cols)
@@ -135,7 +120,6 @@ class PrepData():
             cur_col = 0
 
             to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
-            to_be_y_true = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
 
             for j in range(self.no_chunks):
                 if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
@@ -144,18 +128,14 @@ class PrepData():
 
                 x_chunk = self.x_data[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
                           cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
-                y_chunk = self.y_true[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
-                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
 
                 to_be_x_data[j, :, :] = x_chunk
-                to_be_y_true[j, :, :] = y_chunk
 
                 cur_col += 1
 
             to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
-            to_be_y_true = to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+
             self.x_data[i] = to_be_x_data
-            self.y_true[i] = to_be_y_true
 
         # [number of chunks, chunk height, chunk width, number of features]
 
@@ -185,10 +165,8 @@ class PrepData():
 
         return x, total_batch_num, batch_num_list
 
-    def add_data(self, x_data, y_true):
+    def add_data(self, x_data):
         self.x_data.append(x_data)
-        self.y_true.append(y_true)
-
 
 class PrepTrainTest():
     def __init__(self, batch_size, chunk_height, chunk_width):
