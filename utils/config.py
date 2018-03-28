@@ -22,7 +22,10 @@ def get_config_from_json(json_file):
 def process_config(jsonfile):
     config, _ = get_config_from_json(jsonfile)
 
-    existing_sub_exp = next(os.walk(os.path.join("../experiments", config.exp_name)))[1]
+    try:
+        existing_sub_exp = next(os.walk(os.path.join("../experiments", config.exp_name)))[1]
+    except:
+        existing_sub_exp = []
 
     if config.sub_exp == 'new':
         sub_exp_name = 'experiment_{}'.format(str(len(existing_sub_exp) + 1))

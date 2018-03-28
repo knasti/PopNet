@@ -1,6 +1,6 @@
 {
-  "exp_name": "togo",
-  "sub_exp": "new",
+  "exp_name": "denmark",
+  "sub_exp": "experiment_1",
   "num_epochs": 1,
   "learning_rate": 0.001,
   "batch_size": 16,

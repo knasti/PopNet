@@ -16,19 +16,22 @@ from utils.utils import get_args
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
-data_dir = os.path.relpath('..\\data', base_dir)
+
 config_dir = os.path.relpath('..\\configs', base_dir)
 
+args = get_args()
+if args.config != 'None':
+    config = process_config(args.config)
+else:
+    config = process_config(os.path.join(config_dir, 'config.json'))
+
+data_dir = os.path.relpath('..\\data\\{}'.format(config.exp_name), base_dir)
 
 def main():
     # capture the config path from the run arguments
     # then process the json configration file
     # try:
-    args = get_args()
-    if args.config != 'None':
-        config = process_config(args.config)
-    else:
-        config = process_config(os.path.join(config_dir, 'config.json'))
+
 
     data_loader = DataLoader(data_dir)
     data_loader.load_directory('.tif')
@@ -67,8 +70,6 @@ def main():
 
     data.create_traintest_data()
     data.create_data()
-
-
 
     # Create trainer and path all previous components to it
     trainer = PopTrainer(sess, model, data, config, logger)

@@ -17,25 +17,26 @@ from utils.utils import get_args
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
-data_dir = os.path.relpath('..\\data', base_dir)
 config_dir = os.path.relpath('..\\configs', base_dir)
+args = get_args()
+
+if args.config != 'None':
+    config = process_config(args.config)
+else:
+    config = process_config(os.path.join(config_dir, 'config.json'))
+
+data_dir = os.path.relpath('..\\data\\{}'.format(config.exp_name), base_dir)
 
 def main():
-    # capture the config path from the run arguments
-    # then process the json configration file
-    # try:
-    args = get_args()
-    if args.config != 'None':
-        config = process_config(args.config)
-    else:
-        config = process_config(os.path.join(config_dir, 'config.json'))
-
     data_loader = DataLoader(data_dir)
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
 
-    preptt = PrepTrainTest(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
-    prepd = PrepData(data_loader.arrays[0], data_loader.arrays[1], config.batch_size, config.chunk_height, config.chunk_width)
+    preptt = PrepTrainTest(config.batch_size, config.chunk_height, config.chunk_width)
+    prepd = PrepData(config.batch_size, config.chunk_height, config.chunk_width)
+
+    preptt.add_data(data_loader.arrays[-1], data_loader.arrays[-1])  # SHOULDNT NEED THIS AS PrepData should be able to handle it alone
+    prepd.add_data(data_loader.arrays[-1], data_loader.arrays[-1])
 
     # Create the experiments output dir
     create_dirs([config.output_dir])
@@ -66,8 +67,9 @@ def main():
         chunk_cols = data.prepdata.chunk_cols
 
         final_raster = np.empty((chunk_rows * chunk_height, chunk_cols * chunk_width))
+
         for i in range(data.batch_num):
-            y_pred = sess.run(model.y, feed_dict={model.x: data.input[i]})
+            y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
             y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
 
             for j in range(config.batch_size):
