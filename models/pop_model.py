@@ -12,21 +12,25 @@ class PopModel(BaseModel):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1])
+        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, self.config.num_features])
         self.y_true = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1])
 
         # Network architecture
         conv1 = tf.layers.conv2d(
             inputs=self.x,
             filters=6,
-            kernel_size=[5, 5],
+            kernel_size=[5, 5], # [filter height, filter width]
+            strides=(1, 1),
             padding="same",
             activation=tf.nn.relu)
+
+        # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
 
         conv2 = tf.layers.conv2d(
             inputs=conv1,
             filters=6,
             kernel_size=[5, 5],
+            strides=(1, 1),
             padding="same",
             activation=tf.nn.relu)
 
@@ -43,7 +47,6 @@ class PopModel(BaseModel):
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.root_mean_square_err,
                                                                                    global_step=self.global_step_tensor)
-
 
     def init_saver(self):
         #here you initalize the tensorflow saver that will be used in saving the checkpoints.

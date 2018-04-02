@@ -48,11 +48,6 @@ class DataGenerator():
 
         yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
 
-        # try:
-        #     yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
-        # except IndexError:
-        #     hello = '!!!'
-
     def next_test_batch(self):
         test_id = self.i_test
         pair_no = self.pair_no  # determines which pair we are on (1975-1990 (0), 1990-2000 (1) or 2000-2010 (2))
