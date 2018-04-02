@@ -100,13 +100,12 @@ class PrepData():
             rest_rows = self.x_data[i].shape[0] % self.chunk_height
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
-                self.x_data[i] = np.r_[self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1]))]
-
+                self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))), axis=0)
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
             rest_cols = self.x_data[i].shape[1] % self.chunk_width
-            if rest_rows != 0:
+            if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
-                self.x_data[i] = np.c_[self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_height - rest_cols))]
+                self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features))), axis=1)
 
             self.chunk_rows = int(self.x_data[i].shape[0] / self.chunk_height)
             self.chunk_cols = int(self.x_data[i].shape[1] / self.chunk_width)
@@ -115,7 +114,7 @@ class PrepData():
             cur_row = 0
             cur_col = 0
 
-            to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
+            to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width, self.no_features))
 
             for j in range(self.no_chunks):
                 if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
@@ -123,9 +122,9 @@ class PrepData():
                     cur_col = 0
 
                 x_chunk = self.x_data[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
-                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
+                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width, :]
 
-                to_be_x_data[j, :, :] = x_chunk
+                to_be_x_data[j, :, :, :] = x_chunk
 
                 cur_col += 1
 
@@ -190,30 +189,25 @@ class PrepTrainTest():
             rest_rows = self.x_data[i].shape[0] % self.chunk_height
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
-
-
-                self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))), axis=0)# np.r_[self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))]
-
+                self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))), axis=0)
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
             rest_cols = self.x_data[i].shape[1] % self.chunk_width
             if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
-                self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features))), axis=1)# np.r_[self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))]
-
-                #self.x_data[i] = np.c_[self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features))]
+                self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features))), axis=1)
 
             # LABEL (should give the same result as above)
             # Takes the number of rows MOD the chunk height to determine if we need to add extra rows (padding)
             rest_rows = self.y_true[i].shape[0] % self.chunk_height
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
-                self.y_true[i] = np.r_[self.y_true[i], np.zeros((self.chunk_height - rest_rows, self.y_true[i].shape[1]))]
+                self.y_true[i] = np.concatenate((self.y_true[i], np.zeros((self.chunk_height - rest_rows, self.y_true[i].shape[1]))), axis=0)
 
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
             rest_cols = self.y_true[i].shape[1] % self.chunk_width
             if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
-                self.y_true[i] = np.c_[self.y_true[i], np.zeros((self.y_true[i].shape[0], self.chunk_height - rest_cols))]
+                self.y_true[i] = np.concatenate((self.y_true[i], np.zeros((self.y_true[i].shape[0], self.chunk_height - rest_cols))), axis=1)
 
             self.chunk_rows = int(self.x_data[i].shape[0] / self.chunk_height)
             self.chunk_cols = int(self.x_data[i].shape[1] / self.chunk_width)
@@ -222,7 +216,7 @@ class PrepTrainTest():
             cur_row = 0
             cur_col = 0
 
-            to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
+            to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width, self.no_features))
             to_be_y_true = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
 
             for j in range(self.no_chunks):
@@ -231,11 +225,11 @@ class PrepTrainTest():
                     cur_col = 0
 
                 x_chunk = self.x_data[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
-                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width][:]
+                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width, :]
                 y_chunk = self.y_true[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
                           cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
 
-                to_be_x_data[j, :, :] = x_chunk
+                to_be_x_data[j, :, :, :] = x_chunk
                 to_be_y_true[j, :, :] = y_chunk
 
                 cur_col += 1

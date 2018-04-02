@@ -28,7 +28,7 @@ else:
 data_dir = os.path.relpath('..\\data\\{}'.format(config.exp_name), base_dir)
 
 def main():
-    data_loader = DataLoader(data_dir)
+    data_loader = DataLoader(data_dir, config)
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
 
