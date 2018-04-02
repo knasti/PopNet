@@ -1,0 +1,8 @@
+Experiment: denmark
+Sub experiment: experiment_18
+Number of epochs: 1
+Learning rate: 0.001
+Batch size: 16
+Max to keep: 5
+Chunk height: 32
+Chunk width: 32
