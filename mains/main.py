@@ -33,16 +33,16 @@ def main():
     # try:
 
 
-    data_loader = DataLoader(data_dir)
+    data_loader = DataLoader(data_dir, config)
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
     data_loader.create_data_label_pairs()
 
-    preptt = PrepTrainTest(config.batch_size, config.chunk_height, config.chunk_width)
+    preptt = PrepTrainTest(config)
 
     for i in range(len(data_loader.data_label_pairs)):
-        x_data = data_loader.data_label_pairs[i][0]
-        y_true = data_loader.data_label_pairs[i][1]
+        x_data = data_loader.data_label_pairs[i][0][:]
+        y_true = data_loader.data_label_pairs[i][1][1]
 
         preptt.add_data(x_data, y_true)
 

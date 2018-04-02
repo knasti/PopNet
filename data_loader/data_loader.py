@@ -4,8 +4,9 @@ from osgeo import gdal
 
 class DataLoader():
 
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, config):
         self.data_dir = data_dir
+        self.no_features = config.num_features
         self.files = []
         self.arrays = []
         self.geotif = []
@@ -32,7 +33,11 @@ class DataLoader():
         for file in self.files:
             pop_data = gdal.Open(os.path.join(self.data_dir, file))
             self.geotif.append(pop_data)
-            array = np.array(pop_data.GetRasterBand(1).ReadAsArray())
+            arrays = []
+            for i in range(self.no_features):
+                arrays.append(np.array(pop_data.GetRasterBand(i + 1).ReadAsArray()))
+
+            array = np.stack(arrays, axis=2)  # stacks the array on top of each other, adding a 3rd dimension (axis = 2)
             # Null-values (neg-values) are replaced with zeros
             array[array < 0] = 0
             self.arrays.append(array)

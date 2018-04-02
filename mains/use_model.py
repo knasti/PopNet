@@ -32,8 +32,8 @@ def main():
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
 
-    preptt = PrepTrainTest(config.batch_size, config.chunk_height, config.chunk_width)
-    prepd = PrepData(config.batch_size, config.chunk_height, config.chunk_width)
+    preptt = PrepTrainTest(config)
+    prepd = PrepData(config)
 
     preptt.add_data(data_loader.arrays[-1], data_loader.arrays[-1])  # SHOULDNT NEED THIS AS PrepData should be able to handle it alone
     prepd.add_data(data_loader.arrays[-1])

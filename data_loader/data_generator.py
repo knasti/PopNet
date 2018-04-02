@@ -82,11 +82,12 @@ class DataGenerator():
 
 
 class PrepData():
-    def __init__(self, batch_size, chunk_height, chunk_width):
+    def __init__(self, config):
         self.x_data = []
-        self.batch_size = batch_size
-        self.chunk_height = chunk_height
-        self.chunk_width = chunk_width
+        self.batch_size = config.batch_size
+        self.chunk_height = config.chunk_height
+        self.chunk_width = config.chunk_width
+        self.no_features = config.num_features
         self.chunk_rows = None
         self.chunk_cols = None
         self.no_chunks = None
@@ -128,7 +129,7 @@ class PrepData():
 
                 cur_col += 1
 
-            to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+            to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, self.no_features))
 
             self.x_data[i] = to_be_x_data
 
@@ -139,8 +140,8 @@ class PrepData():
         for i in range(len(self.x_data)):
             scaler = MinMaxScaler()
 
-            x_data = scaler.fit_transform(self.x_data[i].reshape(self.no_chunks * self.chunk_height * self.chunk_width, 1))
-            self.x_data[i] = x_data[i].reshape(self.no_chunks, self.chunk_height, self.chunk_width, 1)  # LAST ENTRY IS NUMBER OF FEATURES
+            x_data = scaler.fit_transform(self.x_data[i].reshape(self.no_chunks * self.chunk_height * self.chunk_width, self.no_features))
+            self.x_data[i] = x_data[i].reshape(self.no_chunks, self.chunk_height, self.chunk_width, self.no_features)  # LAST ENTRY IS NUMBER OF FEATURES
 
     def create_batches(self):
         x = []
@@ -164,10 +165,11 @@ class PrepData():
         self.x_data.append(x_data)
 
 class PrepTrainTest():
-    def __init__(self, batch_size, chunk_height, chunk_width):
-        self.batch_size = batch_size
-        self.chunk_height = chunk_height
-        self.chunk_width = chunk_width
+    def __init__(self, config):
+        self.batch_size = config.batch_size
+        self.chunk_height = config.chunk_height
+        self.chunk_width = config.chunk_width
+        self.no_features = config.num_features
         self.x_data = []
         self.y_true = []
         self.x_train = []
@@ -225,7 +227,7 @@ class PrepTrainTest():
                     cur_col = 0
 
                 x_chunk = self.x_data[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
-                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
+                          cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width][:]
                 y_chunk = self.y_true[i][cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height,
                           cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
 
@@ -233,7 +235,7 @@ class PrepTrainTest():
                 to_be_y_true[j, :, :] = y_chunk
 
                 cur_col += 1
-            to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
+            to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, self.no_features))
             to_be_y_true = to_be_y_true.reshape((self.no_chunks, self.chunk_height, self.chunk_width, 1))
             self.x_data[i] = to_be_x_data
             self.y_true[i] = to_be_y_true
@@ -260,15 +262,15 @@ class PrepTrainTest():
         for i in range(len(self.x_data)):
             scaler = MinMaxScaler()
 
-            x_train = scaler.fit_transform(self.x_train[i].reshape(self.no_train_chunks[i] * self.chunk_height * self.chunk_width, 1))
-            x_test = scaler.fit_transform(self.x_test[i].reshape(self.no_test_chunks[i] * self.chunk_height * self.chunk_width, 1))
+            x_train = scaler.fit_transform(self.x_train[i].reshape(self.no_train_chunks[i] * self.chunk_height * self.chunk_width, self.no_features))
+            x_test = scaler.fit_transform(self.x_test[i].reshape(self.no_test_chunks[i] * self.chunk_height * self.chunk_width, self.no_features))
 
             y_train = scaler.fit_transform(self.y_train[i].reshape(self.no_train_chunks[i] * self.chunk_height * self.chunk_width, 1))
             y_test = scaler.fit_transform(self.y_test[i].reshape(self.no_test_chunks[i] * self.chunk_height * self.chunk_width, 1))
 
             # Reshaping the 2D-array back into a 4D-array
-            self.x_train[i] = x_train[i].reshape(self.no_train_chunks[i], self.chunk_height, self.chunk_width, 1)
-            self.x_test[i] = x_test[i].reshape(self.no_test_chunks[i], self.chunk_height, self.chunk_width, 1)
+            self.x_train[i] = x_train[i].reshape(self.no_train_chunks[i], self.chunk_height, self.chunk_width, self.no_features)
+            self.x_test[i] = x_test[i].reshape(self.no_test_chunks[i], self.chunk_height, self.chunk_width, self.no_features)
             self.y_train[i] = y_train[i].reshape(self.no_train_chunks[i], self.chunk_height, self.chunk_width, 1)
             self.y_test[i] = y_test[i].reshape(self.no_test_chunks[i], self.chunk_height, self.chunk_width, 1)
 
