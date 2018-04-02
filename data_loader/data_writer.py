@@ -11,8 +11,6 @@ class DataWriter():
         self.config = config
         self.output_dir = config.output_dir
 
-
-
     def write_geotif(self):
         # Finds the number of outputs
         output_nr = 0

@@ -163,6 +163,7 @@ class PrepData():
     def add_data(self, x_data):
         self.x_data.append(x_data)
 
+
 class PrepTrainTest():
     def __init__(self, config):
         self.batch_size = config.batch_size

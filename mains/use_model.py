@@ -84,9 +84,14 @@ def main():
 
                     cur_col += 1
 
-            # Removes the previous input data
+            # Removes the previous input data and adds the output raster
             data.prepdata.x_data = []
-            data.prepdata.add_data(output_raster)
+
+            new_input = data_loader.arrays[-1]
+            new_input = np.concatenate((new_input, np.zeros((output_raster.shape[0] - new_input.shape[0], new_input.shape[1], new_input.shape[2]))), axis=0)
+            new_input = np.concatenate((new_input, np.zeros((new_input.shape[0], output_raster.shape[1] - new_input.shape[1], new_input.shape[2]))), axis=1)
+            new_input[:, :, 0] = output_raster
+            data.prepdata.add_data(new_input)
             rasters.append(output_raster)
 
     # Calculating back to population
