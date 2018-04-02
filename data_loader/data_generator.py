@@ -190,13 +190,13 @@ class PrepTrainTest():
             rest_rows = self.x_data[i].shape[0] % self.chunk_height
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
-                self.x_data[i] = np.r_[self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1]))]
+                self.x_data[i] = np.r_[self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))]
 
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
             rest_cols = self.x_data[i].shape[1] % self.chunk_width
-            if rest_rows != 0:
+            if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
-                self.x_data[i] = np.c_[self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_height - rest_cols))]
+                self.x_data[i] = np.c_[self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features))]
 
             # LABEL (should give the same result as above)
             # Takes the number of rows MOD the chunk height to determine if we need to add extra rows (padding)
@@ -207,7 +207,7 @@ class PrepTrainTest():
 
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
             rest_cols = self.y_true[i].shape[1] % self.chunk_width
-            if rest_rows != 0:
+            if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
                 self.y_true[i] = np.c_[self.y_true[i], np.zeros((self.y_true[i].shape[0], self.chunk_height - rest_cols))]
 
