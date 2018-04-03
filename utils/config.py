@@ -22,23 +22,8 @@ def get_config_from_json(json_file):
 def process_config(jsonfile):
     config, _ = get_config_from_json(jsonfile)
 
-    try:
-        existing_sub_exp = next(os.walk(os.path.join("../experiments", config.exp_name)))[1]
-    except:
-        existing_sub_exp = []
-
-    if config.sub_exp == 'new':
-        sub_exp_name = 'experiment_{}'.format(str(len(existing_sub_exp) + 1))
-        config.sub_exp = sub_exp_name
-        config.summary_dir = os.path.join("../experiments", config.exp_name, sub_exp_name, "summary/")
-        config.checkpoint_dir = os.path.join("../experiments", config.exp_name, sub_exp_name, "checkpoint/")
-        config.output_dir = os.path.join("../experiments", config.exp_name, sub_exp_name, "outputs/")
-    elif config.sub_exp in existing_sub_exp:
-        config.summary_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "summary/")
-        config.checkpoint_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "checkpoint/")
-        config.output_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/")
-    else:
-        print('sub experiment does not exist')
-        exit()
+    config.summary_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "summary/")
+    config.checkpoint_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "checkpoint/")
+    config.output_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/")
 
     return config
