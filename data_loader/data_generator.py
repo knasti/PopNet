@@ -170,6 +170,7 @@ class PrepTrainTest():
         self.chunk_height = config.chunk_height
         self.chunk_width = config.chunk_width
         self.no_features = config.num_features
+        self.test_size = config.test_size
         self.x_data = []
         self.y_true = []
         self.x_train = []
@@ -250,7 +251,7 @@ class PrepTrainTest():
             self.no_test_chunks.append([])
 
             # Creating train test split
-            self.x_train[i], self.x_test[i], self.y_train[i], self.y_test[i] = train_test_split(self.x_data[i], self.y_true[i], test_size=0.3, random_state=101)
+            self.x_train[i], self.x_test[i], self.y_train[i], self.y_test[i] = train_test_split(self.x_data[i], self.y_true[i], test_size=self.test_size, random_state=101)
 
             # Stores the shapes to restore them (after the normalization)
             self.no_train_chunks[i] = self.x_train[i].shape[0]

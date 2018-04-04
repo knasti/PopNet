@@ -1,12 +1,15 @@
 {
   "exp_name": "denmark",
-  "sub_exp": "my_experiment",
-  "num_epochs": 1,
+  "sub_exp": "test_1",
+  "num_epochs": 50,
   "learning_rate": 0.001,
   "batch_size": 16,
   "max_to_keep": 5,
   "chunk_height": 32,
   "chunk_width": 32,
   "num_features": 3,
-  "num_outputs": 8
+  "num_outputs": 8,
+  "pop_proj": [],
+  "train_size": 1,
+  "test_size": 0
 }

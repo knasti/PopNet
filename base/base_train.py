@@ -18,8 +18,11 @@ class BaseTrain:
             print('***** EPOCH {} *****'.format(cur_epoch))
             print('Training')
             self.train_epoch()
-            print('Testing')
-            self.test_epoch()
+
+            if self.config.test_size > 0:
+                print('Testing')
+                self.test_epoch()
+
             self.sess.run(self.model.increment_cur_epoch_tensor)
 
     def train_epoch(self):

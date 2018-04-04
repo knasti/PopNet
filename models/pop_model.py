@@ -13,6 +13,7 @@ class PopModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
 
         self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, self.config.num_features])
+        self.x_proj = tf.placeholder(tf.float32, shape=[1])
         self.y_true = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1])
 
         # Network architecture
@@ -41,6 +42,9 @@ class PopModel(BaseModel):
         self.y = tf.layers.dense(inputs=dense1, units=1)
 
         with tf.name_scope("loss"):
+            # Cost function
+            # pop_total_err = tf.divide((tf.abs(tf.subtract(self.x_proj - tf.reduce_sum(self.y)))),
+
             # TensorFlow function for root mean square error
             self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
 

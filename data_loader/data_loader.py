@@ -38,9 +38,22 @@ class DataLoader():
                 arrays.append(np.array(pop_data.GetRasterBand(i + 1).ReadAsArray()))
 
             array = np.stack(arrays, axis=2)  # stacks the array on top of each other, adding a 3rd dimension (axis = 2)
+            print('Min value pop: {}'.format(np.amin(arrays[0])))
+            print('Max value pop: {}'.format(np.amax(arrays[0])))
+            print('Min value water: {}'.format(np.amin(arrays[1])))
+            print('Max value water: {}'.format(np.amax(arrays[1])))
+            print('Min value road: {}'.format(np.amin(arrays[2])))
+            print('Max value road: {}'.format(np.amax(arrays[2])))
+
             # Null-values (neg-values) are replaced with zeros
             array[array < 0] = 0
             self.arrays.append(array)
+
+        # for i in range(len(arrays)):
+        #
+        #     pop_difference = np.sum(arrays[i + 1][0]) - np.sum(arrays[i][0])
+        #     print('im pop dif {}'.format(pop_difference))
+
 
     def create_data_label_pairs(self):
         # Runs through all the files found

@@ -94,6 +94,9 @@ def main():
             data.prepdata.add_data(new_input)
             rasters.append(output_raster)
 
+            print('Min value pop: {}'.format(np.amin(output_raster)))
+            print('Max value pop: {}'.format(np.amax(output_raster)))
+
     # Calculating back to population
     # norm_sum = np.sum(output_raster)
     # final_pop = np.sum(pop_arr_14)
