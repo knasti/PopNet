@@ -47,6 +47,16 @@ class DataGenerator():
 
         yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id], self.preptraintest.x_proj[pair_no]
 
+    def next_big_train_batch(self):
+        batch_nr = self.i_train
+
+        self.i_train += 1
+
+        if self.i_train == len(self.preptraintest.x_data):
+            self.i_train = 0
+
+        yield self.preptraintest.x_data[batch_nr], self.preptraintest.y_true[batch_nr], self.preptraintest.x_proj[batch_nr]
+
     def next_test_batch(self):
         test_id = self.i_test
         pair_no = self.pair_no  # determines which pair we are on (1975-1990 (0), 1990-2000 (1) or 2000-2010 (2))

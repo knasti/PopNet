@@ -1,6 +1,6 @@
 {
   "exp_name": "denmark",
-  "sub_exp": "test_2",
+  "sub_exp": "test_5",
   "num_epochs": 50,
   "learning_rate": 0.001,
   "batch_size": 16,

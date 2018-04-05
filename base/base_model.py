@@ -9,8 +9,8 @@ class BaseModel:
         self.init_global_step()
         # init the epoch counter
         self.init_cur_epoch()
-        self.y_sum = [0]
-        self.pre_y_sum = [0]
+        self.y_sum = tf.Variable(0.0)
+
 
     # save function thet save the checkpoint in the path defined in configfile
     def save(self, sess):
