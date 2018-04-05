@@ -17,8 +17,11 @@ class BaseTrain:
         for cur_epoch in range(self.model.cur_epoch_tensor.eval(self.sess), self.config.num_epochs + 1, 1):
             print('***** EPOCH {} *****'.format(cur_epoch))
             print('Training')
+            #print('im y sum {}'.format(self.model.y_sum))
             self.train_epoch()
-
+            # print(self.model.y_sum)
+            # self.model.y_sum = 0
+            #print('im y sum {}'.format(self.model.y_sum))
             if self.config.test_size > 0:
                 print('Testing')
                 self.test_epoch()

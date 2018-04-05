@@ -84,6 +84,7 @@ class DataGenerator():
 class PrepData():
     def __init__(self, config):
         self.x_data = []
+        self.x_proj = config.pop_proj
         self.batch_size = config.batch_size
         self.chunk_height = config.chunk_height
         self.chunk_width = config.chunk_width
@@ -172,6 +173,7 @@ class PrepTrainTest():
         self.no_features = config.num_features
         self.test_size = config.test_size
         self.x_data = []
+        self.x_proj = []
         self.y_true = []
         self.x_train = []
         self.x_test = []
@@ -317,5 +319,6 @@ class PrepTrainTest():
     def add_data(self, x_data, y_true):
         self.x_data.append(x_data)
         self.y_true.append(y_true)
+        self.x_proj.append(np.sum(y_true))
 
 

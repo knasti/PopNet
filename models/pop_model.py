@@ -8,6 +8,7 @@ class PopModel(BaseModel):
         self.build_model()
         self.init_saver()
 
+
     def build_model(self):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
@@ -41,6 +42,16 @@ class PopModel(BaseModel):
 
         self.y = tf.layers.dense(inputs=dense1, units=1)
 
+        # y_sum = tf.Variable(0)
+        #
+        # y_sum = tf.add(y_sum, tf.cast(tf.reduce_sum(self.y), tf.int32))
+        #
+        # y_sum = tf.Variable(y_sum,)
+
+        # self.y_sum = tf.Print(self.y_sum, [self.y_sum], message="This is y_sum: ")
+        #
+        # b = tf.add(self.y_sum, self.y_sum)
+
         with tf.name_scope("loss"):
             # Cost function
             # pop_total_err = tf.divide((tf.abs(tf.subtract(self.x_proj - tf.reduce_sum(self.y)))),
@@ -51,6 +62,12 @@ class PopModel(BaseModel):
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.root_mean_square_err,
                                                                                    global_step=self.global_step_tensor)
+
+        with tf.name_scope("y_sum"):
+            # tf.Print(self.y_sum, [self.y_sum])
+            # a = tf.add(self.y_sum, self.y_sum)
+
+            self.y_sum += tf.reduce_sum(self.y)
 
     def init_saver(self):
         #here you initalize the tensorflow saver that will be used in saving the checkpoints.

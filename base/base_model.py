@@ -9,6 +9,8 @@ class BaseModel:
         self.init_global_step()
         # init the epoch counter
         self.init_cur_epoch()
+        self.y_sum = [0]
+        self.pre_y_sum = [0]
 
     # save function thet save the checkpoint in the path defined in configfile
     def save(self, sess):
@@ -16,7 +18,7 @@ class BaseModel:
         self.saver.save(sess, self.config.checkpoint_dir, self.global_step_tensor)
         print("Model saved")
 
-    # load latest checkpoint from the experiment path defined in config_file
+    # Load latest checkpoint from the experiment path defined in config_file
     def load(self, sess):
         latest_checkpoint = tf.train.latest_checkpoint(self.config.checkpoint_dir)
         if latest_checkpoint:
@@ -24,13 +26,13 @@ class BaseModel:
             self.saver.restore(sess, latest_checkpoint)
             print("Model loaded")
 
-    # just inialize a tensorflow variable to use it as epoch counter
+    # Inialize a tensorflow variable to use it as epoch counter
     def init_cur_epoch(self):
         with tf.variable_scope('cur_epoch'):
             self.cur_epoch_tensor = tf.Variable(0, trainable=False, name='cur_epoch')
             self.increment_cur_epoch_tensor = tf.assign(self.cur_epoch_tensor, self.cur_epoch_tensor + 1)
 
-    # just inialize a tensorflow variable to use it as global step counter
+    # Inialize a tensorflow variable to use it as global step counter
     def init_global_step(self):
         # DON'T forget to add the global step tensor to the tensorflow trainer
         with tf.variable_scope('global_step'):
