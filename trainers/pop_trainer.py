@@ -28,9 +28,9 @@ class PopTrainer(BaseTrain):
 
 
     def train_step(self):
-        batch_x, batch_y = next(self.data.next_train_batch())
+        batch_x, batch_y, x_proj = next(self.data.next_train_batch())
         #print(self.model.y_sum)
-        feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.is_training: True}
+        feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj, self.model.is_training: True}
         y_sum, _, loss = self.sess.run([self.model.y_sum, self.model.train_step, self.model.root_mean_square_err],
                                      feed_dict=feed_dict)
 

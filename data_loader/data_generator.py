@@ -39,14 +39,13 @@ class DataGenerator():
             self.i_train = 0
             self.pair_no += 1
 
-
         # Total amount of batches
         if self.tot_i_train == self.num_train_batches:
             self.i_train = 0
             self.tot_i_train = 0
             self.pair_no = 0
 
-        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id]
+        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id], self.preptraintest.x_proj[pair_no]
 
     def next_test_batch(self):
         test_id = self.i_test
