@@ -10,17 +10,24 @@ class PopTrainer(BaseTrain):
 
     def train_epoch(self):
         num_batches = tqdm(range(len(self.data.preptraintest.x_data))) # self.data.num_train_batches
-        losses=[]
+        pop_losses = []
+        root_losses = []
+        losses = []
 
         for i in num_batches:
-            loss = self.train_step()
+            pop_loss, root_loss, loss = self.train_step()
+            pop_losses.append(pop_loss)
+            root_losses.append(root_loss)
             losses.append(loss)
-
-        loss=np.mean(losses)
+        pop_loss = np.mean(pop_losses)
+        root_loss = np.mean(root_losses)
+        loss = np.mean(losses)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('im train cur_it {}'.format(cur_it))
         summaries_dict = {}
+        summaries_dict['pop_loss'] = pop_loss
+        summaries_dict['root_loss'] = root_loss
         summaries_dict['loss'] = loss
 
         self.logger.summarize(cur_it, summaries_dict=summaries_dict)
@@ -32,13 +39,13 @@ class PopTrainer(BaseTrain):
         # batch_x, batch_y, x_proj = next(self.data.next_train_batch())
         #print(self.model.y_sum)
         feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj, self.model.is_training: True}
-        pop_err, root_err, _, loss = self.sess.run([self.model.pop_total_err, self.model.root_mean_square_err, self.model.train_step, self.model.loss_func],
+        pop_loss, root_loss, _, loss = self.sess.run([self.model.pop_total_err, self.model.root_mean_square_err, self.model.train_step, self.model.loss_func],
                                      feed_dict=feed_dict)
 
-        print('im pop error: {}'.format(pop_err))
-        print('im root error: {}'.format(root_err))
+        print('im pop error: {}'.format(pop_loss))
+        print('im root error: {}'.format(root_loss))
 
-        return loss
+        return pop_loss, root_loss, loss
 
     def test_epoch(self):
         num_batches = tqdm(range(self.data.num_test_batches))

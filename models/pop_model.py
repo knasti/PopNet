@@ -53,6 +53,7 @@ class PopModel(BaseModel):
         # b = tf.add(self.y_sum, self.y_sum)
 
         with tf.name_scope("pop_tot_loss"):
+            #self.pop_total_err = tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y)))
             self.pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.cast(tf.size(self.y), tf.float32)) # 573440)
 
         with tf.name_scope("pop_cell_loss"):
@@ -65,7 +66,7 @@ class PopModel(BaseModel):
             # MANGLER AT DIVIDE POP_TOTAL_ERR med antallet af celler
             # TensorFlow function for root mean square error
 
-            self.loss_func = tf.div(tf.add(self.root_mean_square_err, self.pop_total_err),2)
+            self.loss_func = tf.div(tf.add(tf.multiply(0.9, self.root_mean_square_err), tf.multiply(0.1, self.pop_total_err)), 2)
 
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss_func,
