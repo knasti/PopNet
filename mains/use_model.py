@@ -32,10 +32,8 @@ def main():
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
 
-    preptt = PrepTrainTest(config)
     prepd = PrepData(config)
 
-    preptt.add_data(data_loader.arrays[-1], data_loader.arrays[-1])  # SHOULDNT NEED THIS AS PrepData should be able to handle it alone
     prepd.add_data(data_loader.arrays[-1])
 
     # Create the experiments output dir
@@ -70,19 +68,35 @@ def main():
 
             output_raster = np.empty((chunk_rows * chunk_height, chunk_cols * chunk_width))
 
-            for i in range(data.batch_num):
-                y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
-                y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
+            y_pred = sess.run(model.y, feed_dict={model.x: data.prepdata.x_data[0], model.x_proj: config.pop_proj[i] * 1000000})
+            y_pred = y_pred.reshape(data.prepdata.no_chunks, chunk_height, chunk_width)
 
-                for j in range(config.batch_size):
-                    if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
-                        cur_row += 1
-                        cur_col = 0
+            for i in range(data.prepdata.no_chunks):
+                if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                    cur_row += 1
+                    cur_col = 0
 
-                    output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
-                        y_pred[j, :, :]
+                # Puts one chunk in at a time in the output raster
+                output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
+                    y_pred[i, :, :]
 
-                    cur_col += 1
+                cur_col += 1
+
+            # Predicting for each batch
+            # for i in range(data.batch_num):
+            #     y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
+            #     y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
+            #
+            #
+            #     for j in range(config.batch_size):
+            #         if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+            #             cur_row += 1
+            #             cur_col = 0
+            #
+            #         output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
+            #             y_pred[j, :, :]
+            #
+            #         cur_col += 1
 
             # Removes the previous input data and adds the output raster
             data.prepdata.x_data = []
@@ -96,6 +110,7 @@ def main():
 
             print('Min value pop: {}'.format(np.amin(output_raster)))
             print('Max value pop: {}'.format(np.amax(output_raster)))
+            print('Sum value pop: {}'.format(np.sum(output_raster)))
 
     # Calculating back to population
     # norm_sum = np.sum(output_raster)

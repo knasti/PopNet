@@ -9,13 +9,12 @@ class PopTrainer(BaseTrain):
         super(PopTrainer, self).__init__(sess, model, data, config, logger)
 
     def train_epoch(self):
-        num_batches = tqdm(range(self.data.num_train_batches))
+        num_batches = tqdm(range(len(self.data.preptraintest.x_data))) # self.data.num_train_batches
         losses=[]
 
         for i in num_batches:
             loss = self.train_step()
             losses.append(loss)
-
 
         loss=np.mean(losses)
 
@@ -33,11 +32,11 @@ class PopTrainer(BaseTrain):
         # batch_x, batch_y, x_proj = next(self.data.next_train_batch())
         #print(self.model.y_sum)
         feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj, self.model.is_training: True}
-        y_sum, _, loss = self.sess.run([self.model.y_sum, self.model.train_step, self.model.root_mean_square_err],
+        pop_err, root_err, _, loss = self.sess.run([self.model.pop_total_err, self.model.root_mean_square_err, self.model.train_step, self.model.loss_func],
                                      feed_dict=feed_dict)
 
-
-        print(y_sum)
+        print('im pop error: {}'.format(pop_err))
+        print('im root error: {}'.format(root_err))
 
         return loss
 

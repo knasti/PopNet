@@ -52,15 +52,23 @@ class PopModel(BaseModel):
         #
         # b = tf.add(self.y_sum, self.y_sum)
 
-        with tf.name_scope("loss"):
-            # Cost function
-            # pop_total_err = tf.divide((tf.abs(tf.subtract(self.x_proj - tf.reduce_sum(self.y)))),
+        with tf.name_scope("pop_tot_loss"):
+            self.pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.cast(tf.size(self.y), tf.float32)) # 573440)
 
-            # TensorFlow function for root mean square error
+        with tf.name_scope("pop_cell_loss"):
             self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
 
+        with tf.name_scope("loss"):
+            # Cost function
+            # pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.size(self.y))
+
+            # MANGLER AT DIVIDE POP_TOTAL_ERR med antallet af celler
+            # TensorFlow function for root mean square error
+
+            self.loss_func = tf.div(tf.add(self.root_mean_square_err, self.pop_total_err),2)
+
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
-            self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.root_mean_square_err,
+            self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss_func,
                                                                                    global_step=self.global_step_tensor)
 
         with tf.name_scope("y_sum"):

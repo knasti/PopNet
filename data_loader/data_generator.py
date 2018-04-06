@@ -49,10 +49,10 @@ class DataGenerator():
 
     def next_big_train_batch(self):
         batch_nr = self.i_train
-
+        self.num_train_batches = len(self.preptraintest.x_data)
         self.i_train += 1
 
-        if self.i_train == len(self.preptraintest.x_data):
+        if self.i_train == self.num_train_batches:
             self.i_train = 0
 
         yield self.preptraintest.x_data[batch_nr], self.preptraintest.y_true[batch_nr], self.preptraintest.x_proj[batch_nr]
@@ -88,6 +88,8 @@ class DataGenerator():
             self.pair_no = 0
 
         yield self.input[pair_no][id]
+
+
 
 
 class PrepData():
@@ -169,6 +171,16 @@ class PrepData():
                 x[i].append(self.x_data[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
 
         return x, total_batch_num, batch_num_list
+
+
+    # def create_big_batches(self):
+    #     x = []
+    #
+    #     for i in range(len(self.x_data)):
+    #         x[i].append
+    #
+    #     return self.x, self.x_proj
+
 
     def add_data(self, x_data):
         self.x_data.append(x_data)
