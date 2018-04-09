@@ -13,9 +13,9 @@ class PopModel(BaseModel):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, self.config.num_features])
-        self.x_proj = tf.placeholder(tf.float32)
-        self.y_true = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, 1])
+        self.x = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, self.config.num_features], name='x')
+        self.x_proj = tf.placeholder(tf.float32, name='x_proj')
+        self.y_true = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
 
         # Network architecture
         conv1 = tf.layers.conv2d(
@@ -24,7 +24,8 @@ class PopModel(BaseModel):
             kernel_size=[5, 5], # [filter height, filter width]
             strides=(1, 1),
             padding="same",
-            activation=tf.nn.relu)
+            activation=tf.nn.relu,
+            name='convolution_1')
 
         # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
 
@@ -34,13 +35,14 @@ class PopModel(BaseModel):
             kernel_size=[5, 5],
             strides=(1, 1),
             padding="same",
-            activation=tf.nn.relu)
+            activation=tf.nn.relu,
+            name='convolution_2')
 
         # MÅSKE VI SKAL BRUGE POOLING FOR AT GÅ FRA 48 I SIDSTE DIMENSION TIL 1?
         # conv2_flat = tf.reshape(conv2, [None, 32 * 32 * 48])
-        dense1 = tf.layers.dense(inputs=conv2, units=32, activation=tf.nn.relu)
+        dense1 = tf.layers.dense(inputs=conv2, units=32, activation=tf.nn.relu, name='dense_1')
 
-        self.y = tf.layers.dense(inputs=dense1, units=1)
+        self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
 
         # y_sum = tf.Variable(0)
         #
