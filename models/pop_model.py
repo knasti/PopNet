@@ -21,16 +21,24 @@ class PopModel(BaseModel):
         conv1 = tf.layers.conv2d(
             inputs=self.x,
             filters=6,
-            kernel_size=[5, 5], # [filter height, filter width]
+            kernel_size=[7, 7], # [filter height, filter width]
             strides=(1, 1),
             padding="same",
             activation=tf.nn.relu,
             name='convolution_1')
 
+        norm1 = tf.nn.local_response_normalization(
+            conv1,
+            depth_radius=5,
+            bias=1,
+            alpha=1,
+            beta=0.5,
+            name='normalization_1')
+
         # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
 
         conv2 = tf.layers.conv2d(
-            inputs=conv1,
+            inputs=norm1,
             filters=6,
             kernel_size=[5, 5],
             strides=(1, 1),
@@ -38,9 +46,15 @@ class PopModel(BaseModel):
             activation=tf.nn.relu,
             name='convolution_2')
 
-        # MÅSKE VI SKAL BRUGE POOLING FOR AT GÅ FRA 48 I SIDSTE DIMENSION TIL 1?
-        # conv2_flat = tf.reshape(conv2, [None, 32 * 32 * 48])
-        dense1 = tf.layers.dense(inputs=conv2, units=32, activation=tf.nn.relu, name='dense_1')
+        norm2 = tf.nn.local_response_normalization(
+            conv2,
+            depth_radius=5,
+            bias=1,
+            alpha=1,
+            beta=0.5,
+            name='normalization_2')
+
+        dense1 = tf.layers.dense(inputs=norm2, units=32, activation=tf.nn.relu, name='dense_1')
 
         self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
 
