@@ -16,6 +16,7 @@ class PopModel(BaseModel):
         self.x = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, self.config.num_features], name='x')
         self.x_proj = tf.placeholder(tf.float32, name='x_proj')
         self.y_true = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
+        self.y_pop = tf.placeholder(tf.float32, shape=None, name='y_pop')
 
         # Network architecture
         conv1 = tf.layers.conv2d(
@@ -70,8 +71,8 @@ class PopModel(BaseModel):
 
         with tf.name_scope("pop_tot_loss"):
             #self.pop_total_err = tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y)))
-            self.pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.cast(tf.size(self.y), tf.float32)) # 573440)
-
+            #self.pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.cast(tf.size(self.y), tf.float32)) # 573440)
+            self.pop_total_err = tf.reduce_mean(tf.abs(tf.subtract(tf.divide(self.y_pop, self.x_proj), tf.reduce_sum(self.y, axis=0))))
         with tf.name_scope("pop_cell_loss"):
             self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
 
@@ -82,7 +83,7 @@ class PopModel(BaseModel):
             # MANGLER AT DIVIDE POP_TOTAL_ERR med antallet af celler
             # TensorFlow function for root mean square error
 
-            self.loss_func = tf.div(tf.add(tf.multiply(0.9, self.root_mean_square_err), tf.multiply(0.1, self.pop_total_err)), 2)
+            self.loss_func = tf.add(tf.multiply(0.9, self.root_mean_square_err), tf.multiply(0.1, self.pop_total_err))
 
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss_func,

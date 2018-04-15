@@ -45,7 +45,7 @@ class DataGenerator():
             self.tot_i_train = 0
             self.pair_no = 0
 
-        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id], self.preptraintest.x_proj[pair_no]
+        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id], self.preptraintest.x_proj[pair_no], self.train_label_pop[pair_no][train_id]
 
     def next_big_train_batch(self):
         batch_nr = self.i_train
