@@ -19,8 +19,8 @@ class DataGenerator():
         self.preptraintest.create_chunks()
         self.preptraintest.create_train_test_split()
         # self.preptraintest.normalize_data()
-        self.train_data, self.train_labels, self.num_train_batches, self.list_num_train_batches = self.preptraintest.train_batches()
-        self.test_data, self.test_labels, self.num_test_batches, self.list_num_test_batches = self.preptraintest.test_batches()
+        self.train_data, self.train_labels, self.train_label_pop, self.num_train_batches, self.list_num_train_batches = self.preptraintest.train_batches()
+        self.test_data, self.test_labels, self.test_label_pop, self.num_test_batches, self.list_num_test_batches = self.preptraintest.test_batches()
 
     def create_data(self):
         self.prepdata.create_chunks()
@@ -243,7 +243,7 @@ class PrepTrainTest():
 
             to_be_x_data = np.empty((self.no_chunks, self.chunk_height, self.chunk_width, self.no_features))
             to_be_y_true = np.empty((self.no_chunks, self.chunk_height, self.chunk_width))
-
+            pop_chunk = np.empty(self.no_chunks)
             for j in range(self.no_chunks):
                 if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
                     cur_row += 1
@@ -255,7 +255,12 @@ class PrepTrainTest():
                           cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width]
 
                 to_be_x_data[j, :, :, :] = x_chunk
+
                 to_be_y_true[j, :, :] = y_chunk
+                pop_chunk[j] = np.sum(y_chunk)
+
+                # y_chunk_pop = y_chunk[]
+
 
                 cur_col += 1
             to_be_x_data = to_be_x_data.reshape((self.no_chunks, self.chunk_height, self.chunk_width, self.no_features))
@@ -300,13 +305,14 @@ class PrepTrainTest():
     def train_batches(self):
         x = []
         y = []
+        y_pop = []
         num_train_batch_list = []
         total_train_batches = 0
         for i in range(len(self.x_data)):
             # Create empty lists for x / y data
             x.append([])
             y.append([])
-
+            y_pop.append([])
             num_train_batch = self.no_train_chunks[i] // self.batch_size
             num_train_batch_list.append(num_train_batch)
             total_train_batches += num_train_batch
@@ -314,19 +320,24 @@ class PrepTrainTest():
             for j in range(num_train_batch):
                 x[i].append(self.x_train[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
                 y[i].append(self.y_train[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
+                batch_pop_sum = []
+                for k in range(self.batch_size):
+                    batch_pop_sum.append(np.sum(self.y_train[i][j * self.batch_size + k, :, :, :]))
+                y_pop[i].append(batch_pop_sum)
 
-        return x, y, total_train_batches, num_train_batch_list
+        return x, y, y_pop, total_train_batches, num_train_batch_list
 
     def test_batches(self):
         x = []
         y = []
+        y_pop = []
         num_test_batch_list = []
         total_test_batches = 0
         for i in range(len(self.x_data)):
             # Create empty lists for x / y data
             x.append([])
             y.append([])
-
+            y_pop.append([])
             num_test_batch = self.no_test_chunks[i] // self.batch_size
             num_test_batch_list.append(num_test_batch)
             total_test_batches += num_test_batch
@@ -334,8 +345,12 @@ class PrepTrainTest():
             for j in range(num_test_batch):
                 x[i].append(self.x_test[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
                 y[i].append(self.y_test[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
+                batch_pop_sum = []
+                for k in range(self.batch_size):
+                    batch_pop_sum.append(np.sum(self.y_test[i][j * self.batch_size + k, :, :, :]))
+                y_pop[i].append(batch_pop_sum)
 
-        return x, y, total_test_batches, num_test_batch_list
+        return x, y, y_pop, total_test_batches, num_test_batch_list
 
     def add_data(self, x_data, y_true):
         self.x_data.append(x_data)
