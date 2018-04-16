@@ -14,9 +14,11 @@ class PopModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
 
         self.x = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, self.config.num_features], name='x')
-        self.x_proj = tf.placeholder(tf.float32, name='x_proj')
+        self.x_pop_chunk = tf.placeholder(tf.float32, shape=None, name='x_pop_chunk')  # sum of population in chunks
+        self.x_cur_pop = tf.placeholder(tf.float32, name='x_cur_pop')  # sum of all population in current year
+        self.x_proj = tf.placeholder(tf.float32, name='x_proj')  # projection of population in year to come
         self.y_true = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
-        self.y_pop = tf.placeholder(tf.float32, shape=None, name='y_pop')
+
 
         # Network architecture
         conv1 = tf.layers.conv2d(
@@ -74,7 +76,10 @@ class PopModel(BaseModel):
             #self.pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.cast(tf.size(self.y), tf.float32)) # 573440)
             #label_pop = tf.divide(self.y_pop, self.x_proj)
             #pred_pop = tf.divide(tf.reduce_sum(self.y, axis=0), self.x_proj)
-            self.pop_total_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_pop, tf.reduce_sum(self.y, axis=0))))
+            #self.pop_total_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_pop, tf.reduce_sum(self.y, axis=0))))
+            chunk_pred = tf.reduce_sum(self.y, axis=0)
+            chunk_y = tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop))
+            self.pop_total_err = tf.abs(tf.subtract(chunk_pred, chunk_y))
         with tf.name_scope("pop_cell_loss"):
             # self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
             self.mean_absolute_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))

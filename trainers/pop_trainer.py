@@ -36,9 +36,9 @@ class PopTrainer(BaseTrain):
 
     def train_step(self):
         # batch_x, batch_y, x_proj = next(self.data.next_big_train_batch())
-        batch_x, batch_y, x_proj, y_pop = next(self.data.next_train_batch())
+        batch_x, batch_y, x_proj, x_pop_chunk, x_cur_pop = next(self.data.next_train_batch())
         #print(self.model.y_sum)
-        feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj, self.model.y_pop: y_pop, self.model.is_training: True}
+        feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj, self.model.x_pop_chunk: x_pop_chunk, self.model.x_cur_pop: x_cur_pop, self.model.is_training: True}
         pop_loss, abs_loss, _, loss = self.sess.run([self.model.pop_total_err, self.model.mean_absolute_err, self.model.train_step, self.model.loss_func],
                                      feed_dict=feed_dict)
 
@@ -73,9 +73,9 @@ class PopTrainer(BaseTrain):
         self.logger.summarize(cur_it, summerizer="test", summaries_dict=summaries_dict)
 
     def test_step(self):
-        batch_x, batch_y, x_proj, y_pop = next(self.data.next_test_batch())
+        batch_x, batch_y, x_proj, x_pop_chunk, x_cur_pop = next(self.data.next_test_batch())
         feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj,
-                     self.model.y_pop: y_pop, self.model.is_training: False}
+                     self.model.x_pop_chunk: x_pop_chunk, self.model.x_cur_pop: x_cur_pop, self.model.is_training: False}
         pop_loss, abs_loss, _, loss = self.sess.run([self.model.pop_total_err, self.model.mean_absolute_err, self.model.train_step, self.model.loss_func],
                                      feed_dict=feed_dict)
 

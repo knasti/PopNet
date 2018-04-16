@@ -45,7 +45,7 @@ class DataGenerator():
             self.tot_i_train = 0
             self.pair_no = 0
 
-        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id], self.preptraintest.x_proj[pair_no], self.train_label_pop[pair_no][train_id]
+        yield self.train_data[pair_no][train_id], self.train_labels[pair_no][train_id], self.preptraintest.x_proj[pair_no], self.train_label_pop[pair_no][train_id], self.preptraintest.x_cur_pop[pair_no]
 
     def next_big_train_batch(self):
         batch_nr = self.i_train
@@ -73,7 +73,7 @@ class DataGenerator():
             self.tot_i_test = 0
             self.pair_no = 0
 
-        yield self.test_data[pair_no][test_id], self.test_labels[pair_no][test_id], self.preptraintest.x_proj[pair_no], self.test_label_pop[pair_no][test_id]
+        yield self.test_data[pair_no][test_id], self.test_labels[pair_no][test_id], self.preptraintest.x_proj[pair_no], self.test_label_pop[pair_no][test_id], self.preptraintest.x_cur_pop[pair_no]
 
     def next_batch(self):
         id = self.i
@@ -195,6 +195,7 @@ class PrepTrainTest():
         self.test_size = config.test_size
         self.x_data = []
         self.x_proj = []
+        self.x_cur_pop = []
         self.y_true = []
         self.x_train = []
         self.x_test = []
@@ -305,14 +306,14 @@ class PrepTrainTest():
     def train_batches(self):
         x = []
         y = []
-        y_pop = []
+        x_chunk_pop = []
         num_train_batch_list = []
         total_train_batches = 0
         for i in range(len(self.x_data)):
             # Create empty lists for x / y data
             x.append([])
             y.append([])
-            y_pop.append([])
+            x_chunk_pop.append([])
             num_train_batch = self.no_train_chunks[i] // self.batch_size
             num_train_batch_list.append(num_train_batch)
             total_train_batches += num_train_batch
@@ -322,22 +323,22 @@ class PrepTrainTest():
                 y[i].append(self.y_train[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
                 batch_pop_sum = []
                 for k in range(self.batch_size):
-                    batch_pop_sum.append(np.sum(self.y_train[i][j * self.batch_size + k, :, :, :]))
-                y_pop[i].append(batch_pop_sum)
+                    batch_pop_sum.append(np.sum(self.x_train[i][j * self.batch_size + k, :, :, 0]))
+                x_chunk_pop[i].append(batch_pop_sum)
 
-        return x, y, y_pop, total_train_batches, num_train_batch_list
+        return x, y, x_chunk_pop, total_train_batches, num_train_batch_list
 
     def test_batches(self):
         x = []
         y = []
-        y_pop = []
+        x_chunk_pop = []
         num_test_batch_list = []
         total_test_batches = 0
         for i in range(len(self.x_data)):
             # Create empty lists for x / y data
             x.append([])
             y.append([])
-            y_pop.append([])
+            x_chunk_pop.append([])
             num_test_batch = self.no_test_chunks[i] // self.batch_size
             num_test_batch_list.append(num_test_batch)
             total_test_batches += num_test_batch
@@ -347,14 +348,15 @@ class PrepTrainTest():
                 y[i].append(self.y_test[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
                 batch_pop_sum = []
                 for k in range(self.batch_size):
-                    batch_pop_sum.append(np.sum(self.y_test[i][j * self.batch_size + k, :, :, :]))
-                y_pop[i].append(batch_pop_sum)
+                    batch_pop_sum.append(np.sum(self.x_test[i][j * self.batch_size + k, :, :, 0]))
+                x_chunk_pop[i].append(batch_pop_sum)
 
-        return x, y, y_pop, total_test_batches, num_test_batch_list
+        return x, y, x_chunk_pop, total_test_batches, num_test_batch_list
 
     def add_data(self, x_data, y_true):
         self.x_data.append(x_data)
         self.y_true.append(y_true)
         self.x_proj.append(np.sum(y_true))
+        self.x_cur_pop.append(np.sum(x_data[:,:,0]))
 
 
