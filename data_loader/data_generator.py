@@ -73,7 +73,7 @@ class DataGenerator():
             self.tot_i_test = 0
             self.pair_no = 0
 
-        yield self.test_data[pair_no][test_id], self.test_labels[pair_no][test_id]
+        yield self.test_data[pair_no][test_id], self.test_labels[pair_no][test_id], self.preptraintest.x_proj[pair_no], self.test_label_pop[pair_no][test_id]
 
     def next_batch(self):
         id = self.i

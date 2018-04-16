@@ -3,7 +3,6 @@ from tqdm import tqdm
 import numpy as np
 
 
-
 class PopTrainer(BaseTrain):
     def __init__(self, sess, model, data, config, logger):
         super(PopTrainer, self).__init__(sess, model, data, config, logger)
@@ -11,23 +10,24 @@ class PopTrainer(BaseTrain):
     def train_epoch(self):
         num_batches = tqdm(range(self.data.num_train_batches)) # tqdm(range(len(self.data.preptraintest.x_data)))
         pop_losses = []
-        root_losses = []
+        abs_losses = []
         losses = []
 
         for i in num_batches:
-            pop_loss, root_loss, loss = self.train_step()
+            pop_loss, abs_loss, loss = self.train_step()
             pop_losses.append(pop_loss)
-            root_losses.append(root_loss)
+            abs_losses.append(abs_loss)
             losses.append(loss)
+
         pop_loss = np.mean(pop_losses)
-        root_loss = np.mean(root_losses)
+        abs_loss = np.mean(abs_losses)
         loss = np.mean(losses)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('im train cur_it {}'.format(cur_it))
         summaries_dict = {}
         summaries_dict['pop_loss'] = pop_loss
-        summaries_dict['root_loss'] = root_loss
+        summaries_dict['abs_loss'] = abs_loss
         summaries_dict['loss'] = loss
 
         self.logger.summarize(cur_it, summaries_dict=summaries_dict)
@@ -42,32 +42,42 @@ class PopTrainer(BaseTrain):
         pop_loss, abs_loss, _, loss = self.sess.run([self.model.pop_total_err, self.model.mean_absolute_err, self.model.train_step, self.model.loss_func],
                                      feed_dict=feed_dict)
 
-        print('im pop error: {}'.format(pop_loss))
-        print('im abs error: {}'.format(abs_loss))
+        # print('im pop error: {}'.format(pop_loss))
+        # print('im abs error: {}'.format(abs_loss))
 
         return pop_loss, abs_loss, loss
 
     def test_epoch(self):
         num_batches = tqdm(range(self.data.num_test_batches))
-        losses=[]
+        pop_losses = []
+        abs_losses = []
+        losses = []
 
         for _ in num_batches:
-            loss = self.test_step()
+            pop_loss, abs_loss, loss = self.test_step()
+            pop_losses.append(pop_loss)
+            abs_losses.append(abs_loss)
             losses.append(loss)
 
+        pop_loss = np.mean(pop_losses)
+        abs_loss = np.mean(abs_losses)
         loss=np.mean(losses)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('im test cur_it {}'.format(cur_it))
         summaries_dict = {}
+        summaries_dict['pop_loss'] = pop_loss
+        summaries_dict['abs_loss'] = abs_loss
         summaries_dict['loss'] = loss
 
         self.logger.summarize(cur_it, summerizer="test", summaries_dict=summaries_dict)
 
     def test_step(self):
-        batch_x, batch_y = next(self.data.next_test_batch())
-        feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.is_training: False}
-        _, loss = self.sess.run([self.model.train_step, self.model.root_mean_square_err],
+        batch_x, batch_y, x_proj, y_pop = next(self.data.next_test_batch())
+        feed_dict = {self.model.x: batch_x, self.model.y_true: batch_y, self.model.x_proj: x_proj,
+                     self.model.y_pop: y_pop, self.model.is_training: False}
+        pop_loss, abs_loss, _, loss = self.sess.run([self.model.pop_total_err, self.model.mean_absolute_err, self.model.train_step, self.model.loss_func],
                                      feed_dict=feed_dict)
-        return loss
+
+        return pop_loss, abs_loss, loss
 

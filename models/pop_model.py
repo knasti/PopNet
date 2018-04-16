@@ -72,9 +72,9 @@ class PopModel(BaseModel):
         with tf.name_scope("pop_tot_loss"):
             #self.pop_total_err = tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y)))
             #self.pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.cast(tf.size(self.y), tf.float32)) # 573440)
-            label_pop = tf.divide(self.y_pop, self.x_proj)
-            pred_pop = tf.divide(tf.reduce_sum(self.y, axis=0), self.x_proj)
-            self.pop_total_err = tf.reduce_mean(tf.abs(tf.subtract(label_pop, pred_pop)))
+            #label_pop = tf.divide(self.y_pop, self.x_proj)
+            #pred_pop = tf.divide(tf.reduce_sum(self.y, axis=0), self.x_proj)
+            self.pop_total_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_pop, tf.reduce_sum(self.y, axis=0))))
         with tf.name_scope("pop_cell_loss"):
             # self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
             self.mean_absolute_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))
