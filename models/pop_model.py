@@ -61,6 +61,8 @@ class PopModel(BaseModel):
 
         self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
 
+        self.y_chunk = tf.subtract(tf.reduce_sum(self.y, axis=0), tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)))
+
         # y_sum = tf.Variable(0)
         #
         # y_sum = tf.add(y_sum, tf.cast(tf.reduce_sum(self.y), tf.int32))
@@ -77,11 +79,11 @@ class PopModel(BaseModel):
             #label_pop = tf.divide(self.y_pop, self.x_proj)
             #pred_pop = tf.divide(tf.reduce_sum(self.y, axis=0), self.x_proj)
             #self.pop_total_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_pop, tf.reduce_sum(self.y, axis=0))))
-            chunk_pred = tf.reduce_sum(self.y, axis=0)
+            #chunk_pred = tf.reduce_sum(self.y, axis=0)
             chunk_height = tf.cast(self.config.chunk_height, dtype='float32')
             chunk_width = tf.cast(self.config.chunk_width, dtype='float32')
-            chunk_y = tf.divide(tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)), tf.multiply(chunk_height, chunk_width))
-            self.pop_total_err = tf.abs(tf.subtract(chunk_pred, chunk_y))
+            #chunk_y = tf.divide(tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)), tf.multiply(chunk_height, chunk_width))
+            self.pop_total_err = tf.divide(self.y_chunk, tf.multiply(chunk_height, chunk_width))
         with tf.name_scope("pop_cell_loss"):
             # self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
             self.mean_absolute_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))

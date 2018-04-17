@@ -25,7 +25,7 @@ class DataGenerator():
     def create_data(self):
         self.prepdata.create_chunks()
         # self.prepdata.normalize_data()
-        self.input, self.batch_num, self.list_batch_num = self.prepdata.create_batches()
+        self.input, self.x_chunk_pop, self.batch_num, self.list_batch_num = self.prepdata.create_batches()
 
     def next_train_batch(self):
         train_id = self.i_train
@@ -95,6 +95,7 @@ class DataGenerator():
 class PrepData():
     def __init__(self, config):
         self.x_data = []
+        self.x_cur_pop = []
         self.x_proj = config.pop_proj
         self.batch_size = config.batch_size
         self.chunk_height = config.chunk_height
@@ -156,21 +157,26 @@ class PrepData():
 
     def create_batches(self):
         x = []
+        x_chunk_pop = []
         batch_num_list = []
         total_batch_num = 0
         for i in range(len(self.x_data)):
             # Create empty lists for x / y data
             x.append([])
+            x_chunk_pop.append([])
 
             batch_num = self.no_chunks // self.batch_size
             batch_num_list.append(batch_num)
             total_batch_num += batch_num
 
-
             for j in range(batch_num):
                 x[i].append(self.x_data[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
+                batch_pop_sum = []
+                for k in range(self.batch_size):
+                    batch_pop_sum.append(np.sum(self.x_data[i][j * self.batch_size + k, :, :, 0]))
+                x_chunk_pop[i].append(batch_pop_sum)
 
-        return x, total_batch_num, batch_num_list
+        return x, x_chunk_pop, total_batch_num, batch_num_list
 
 
     # def create_big_batches(self):
@@ -184,6 +190,7 @@ class PrepData():
 
     def add_data(self, x_data):
         self.x_data.append(x_data)
+        self.x_cur_pop.append(np.sum(x_data[:, :, 0]))
 
 
 class PrepTrainTest():
