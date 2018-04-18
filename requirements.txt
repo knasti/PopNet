@@ -1,6 +1,8 @@
-tensorflow
+tensorflow >= 1.4
 numpy
 osgeo / gdal
 scikit-learn
 osr
 matplotlib
+tqdm
+bunch
