@@ -94,7 +94,7 @@ class PopModel(BaseModel):
             # MANGLER AT DIVIDE POP_TOTAL_ERR med antallet af celler
             # TensorFlow function for root mean square error
 
-            self.loss_func = tf.add(tf.multiply(0.5, self.mean_absolute_err), tf.multiply(0.5, self.pop_total_err))
+            self.loss_func = tf.add(tf.multiply(self.config.cost_cell, self.mean_absolute_err), tf.multiply(self.config.cost_chunk, self.pop_total_err))
 
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss_func,
