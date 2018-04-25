@@ -5,9 +5,10 @@ from osgeo import gdal
 
 class DataWriter():
 
-    def __init__(self, geotif, raster, config):
+    def __init__(self, geotif, start_raster, output_raster, config):
         self.geotif = geotif
-        self.raster = raster
+        self.start_raster = start_raster
+        self.output_raster = output_raster
         self.config = config
         self.output_dir = config.output_dir
 
@@ -18,8 +19,16 @@ class DataWriter():
             if file.endswith(".tif"):
                 output_nr += 1
 
+        # Writes the predicted output
         output = os.path.join(self.output_dir, 'output_{}.tif'.format(output_nr))
+        self.write_to_disk(output, self.output_raster)
 
+        # Writes the difference between start point and predicted output
+        diff_output = os.path.join(self.output_dir, 'diff_output_{}.tif'.format(output_nr))
+        diff_raster = np.subtract(self.output_raster, self.start_raster)
+        self.write_to_disk(diff_output, diff_raster)
+
+    def write_to_disk(self, dir, raster):
         # Picking up values reference values needed to export to geotif
         projection = osr.SpatialReference()
         projection.ImportFromWkt(self.geotif.GetProjectionRef())
@@ -29,7 +38,7 @@ class DataWriter():
 
         driver = gdal.GetDriverByName('GTiff')
 
-        dst_ds = driver.Create(output, xsize=self.raster.shape[1], ysize=self.raster.shape[0],
+        dst_ds = driver.Create(dir, xsize=raster.shape[1], ysize=raster.shape[0],
                                bands=1, eType=gdal.GDT_Float32)
 
         dst_ds.SetGeoTransform((
@@ -42,5 +51,7 @@ class DataWriter():
         ))
 
         dst_ds.SetProjection(projection.ExportToWkt())
-        dst_ds.GetRasterBand(1).WriteArray(self.raster)
+        dst_ds.GetRasterBand(1).WriteArray(raster)
         dst_ds.FlushCache()  # Write to disk.
+
+

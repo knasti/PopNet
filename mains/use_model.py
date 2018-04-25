@@ -34,7 +34,9 @@ def main():
 
     prepd = PrepData(config)
 
-    prepd.add_data(data_loader.arrays[-1])
+    start_raster = data_loader.arrays[-1]
+
+    prepd.add_data(start_raster)
 
     # Create the experiments output dir
     create_dirs([config.output_dir])
@@ -71,14 +73,14 @@ def main():
             y_pred = sess.run(model.y, feed_dict={model.x: data.prepdata.x_data[0], model.x_proj: config.pop_proj[i] * 1000000})
             y_pred = y_pred.reshape(data.prepdata.no_chunks, chunk_height, chunk_width)
 
-            for i in range(data.prepdata.no_chunks):
+            for k in range(data.prepdata.no_chunks):
                 if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
                     cur_row += 1
                     cur_col = 0
 
                 # Puts one chunk in at a time in the output raster
                 output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
-                    y_pred[i, :, :]
+                    y_pred[k, :, :]
 
                 cur_col += 1
 
@@ -122,7 +124,7 @@ def main():
             print(np.min(output_raster))
             print(output_raster.shape)
 
-            data_writer = DataWriter(data_loader.geotif[0], output_raster, config)
+            data_writer = DataWriter(data_loader.geotif[0], start_raster, output_raster, config)
             data_writer.write_geotif()
 
 
