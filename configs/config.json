@@ -1,7 +1,7 @@
 {
   "exp_name": "denmark",
-  "sub_exp": "test_35",
-  "num_epochs": 200,
+  "sub_exp": "test_49",
+  "num_epochs": 400,
   "learning_rate": 0.001,
   "batch_size": 16,
   "max_to_keep": 5,
@@ -11,6 +11,7 @@
   "num_outputs": 9,
   "pop_proj": [5.806, 6.087, 6.338, 6.574, 6.825, 7.047, 7.225, 7.354, 7.426],
   "train_size": 0.7,
-  "test_size": 0.3
+  "test_size": 0.3,
+  "dropout": 0.2
 }
 

@@ -52,6 +52,7 @@ def main():
     # Create tensorflow session
     sess = tf.Session()
 
+
     # Create instance of the model you want
     model = PopModel(config)
 

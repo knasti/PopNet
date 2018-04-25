@@ -1,5 +1,7 @@
 from base.base_model import BaseModel
 import tensorflow as tf
+import numpy as np
+
 
 class PopModel(BaseModel):
     def __init__(self, config):
@@ -13,12 +15,11 @@ class PopModel(BaseModel):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, self.config.num_features], name='x')
-        self.x_pop_chunk = tf.placeholder(tf.float32, shape=None, name='x_pop_chunk')  # sum of population in chunks
+        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, self.config.num_features + 1], name='x')
+        self.x_pop_chunk = tf.placeholder(tf.float32, shape=self.config.batch_size, name='x_pop_chunk')  # sum of population in chunks
         self.x_cur_pop = tf.placeholder(tf.float32, name='x_cur_pop')  # sum of all population in current year
         self.x_proj = tf.placeholder(tf.float32, name='x_proj')  # projection of population in year to come
-        self.y_true = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
-
+        self.y_true = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
 
         # Network architecture
         conv1 = tf.layers.conv2d(
@@ -41,7 +42,7 @@ class PopModel(BaseModel):
         # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
 
         conv2 = tf.layers.conv2d(
-            inputs=norm1,
+            inputs=conv1,
             filters=6,
             kernel_size=[5, 5],
             strides=(1, 1),
@@ -57,11 +58,13 @@ class PopModel(BaseModel):
             beta=0.5,
             name='normalization_2')
 
-        dense1 = tf.layers.dense(inputs=norm2, units=32, activation=tf.nn.relu, name='dense_1')
+        dense1 = tf.layers.dense(inputs=conv2, units=32, activation=tf.nn.relu, name='dense_1')
+
+        # dropout = tf.layers.dropout(dense1, rate=self.config.dropout, training=self.is_training)
 
         self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
 
-        self.y_chunk = tf.subtract(tf.reduce_sum(self.y, axis=0), tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)))
+        self.y_chunk = tf.abs(tf.subtract(tf.reduce_sum(self.y, axis=0), tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop))))
 
         # y_sum = tf.Variable(0)
         #
@@ -72,6 +75,12 @@ class PopModel(BaseModel):
         # self.y_sum = tf.Print(self.y_sum, [self.y_sum], message="This is y_sum: ")
         #
         # b = tf.add(self.y_sum, self.y_sum)
+
+        def absolute_mean_err():
+            return tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))
+        def neg_value_err():
+            return 10000.0
+
 
         with tf.name_scope("pop_tot_loss"):
             #self.pop_total_err = tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y)))
@@ -85,8 +94,14 @@ class PopModel(BaseModel):
             #chunk_y = tf.divide(tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)), tf.multiply(chunk_height, chunk_width))
             self.pop_total_err = tf.divide(self.y_chunk, tf.multiply(chunk_height, chunk_width))
         with tf.name_scope("pop_cell_loss"):
-            # self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
+            #self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
             self.mean_absolute_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))
+            #self.mean_absolute_err = tf.cond(tf.greater_equal(tf.reduce_mean(self.y), 0), absolute_mean_err, neg_value_err)
+            # mean_absolute_err = tf.get_variable("mean_absolute_err", constraint = lambda x: tf.clip_by_value(x, 0, np.infty))
+            # self.mean_absolute_err = mean_absolute_err
+
+            # self.mean_absolute_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))
+
         with tf.name_scope("loss"):
             # Cost function
             # pop_total_err = tf.div(tf.abs(tf.subtract(self.x_proj, tf.reduce_sum(self.y))), tf.size(self.y))
