@@ -53,6 +53,8 @@ def main():
     # Create data generator
     data = DataGenerator(config, prepdata = prepd)
 
+    start_raster = data.prepdata.x_data[0][:,:,0]
+    print(start_raster.shape)
     rasters = []
 
     with sess:

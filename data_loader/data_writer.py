@@ -25,7 +25,10 @@ class DataWriter():
 
         # Writes the difference between start point and predicted output
         diff_output = os.path.join(self.output_dir, 'diff_output_{}.tif'.format(output_nr))
-        diff_raster = np.subtract(self.output_raster, self.start_raster)
+
+        start_raster_padded = np.zeros(self.output_raster.shape)
+        start_raster_padded[:self.start_raster.shape[0],:self.start_raster.shape[1]] = self.start_raster
+        diff_raster = np.subtract(self.output_raster, start_raster_padded)
         self.write_to_disk(diff_output, diff_raster)
 
     def write_to_disk(self, dir, raster):
