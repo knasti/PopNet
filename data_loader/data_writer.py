@@ -1,4 +1,6 @@
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 import os
 import osr
 from osgeo import gdal
@@ -20,16 +22,22 @@ class DataWriter():
                 output_nr += 1
 
         # Writes the predicted output
-        output = os.path.join(self.output_dir, 'output_{}.tif'.format(output_nr))
-        self.write_to_disk(output, self.output_raster)
+        output_tif = os.path.join(self.output_dir, 'output_{}.tif'.format(output_nr))
+        output_fig = os.path.join(self.output_dir, 'output_{}.png'.format(output_nr))
+        self.heatmap(output_fig, self.output_raster)
+        self.write_to_disk(output_tif, self.output_raster)
 
         # Writes the difference between start point and predicted output
-        diff_output = os.path.join(self.output_dir, 'diff_output_{}.tif'.format(output_nr))
+        diff_output_tif = os.path.join(self.output_dir, 'diff_output_{}.tif'.format(output_nr))
+        diff_output_fig = os.path.join(self.output_dir, 'diff_output_{}.png'.format(output_nr))
+        diff_output_hist = os.path.join(self.output_dir, 'diff_output_hist_{}.png'.format(output_nr))
 
         start_raster_padded = np.zeros(self.output_raster.shape)
         start_raster_padded[:self.start_raster.shape[0],:self.start_raster.shape[1]] = self.start_raster
         diff_raster = np.subtract(self.output_raster, start_raster_padded)
-        self.write_to_disk(diff_output, diff_raster)
+        self.heatmap(diff_output_fig, diff_raster)
+        self.histogram(diff_output_hist, diff_raster)
+        self.write_to_disk(diff_output_tif, diff_raster)
 
     def write_to_disk(self, dir, raster):
         # Picking up values reference values needed to export to geotif
@@ -58,3 +66,14 @@ class DataWriter():
         dst_ds.FlushCache()  # Write to disk.
 
 
+    def heatmap(self, dir, raster):
+        plt.figure()
+        plot = sns.heatmap(raster)
+        figure = plot.get_figure()
+        figure.savefig(dir)
+
+    def histogram(self, dir, raster):
+        plt.figure()
+        plot = sns.distplot(raster.ravel(), kde=False)
+        figure = plot.get_figure()
+        figure.savefig(dir)
