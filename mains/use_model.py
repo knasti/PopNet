@@ -39,7 +39,7 @@ def main():
     prepd.add_data(start_raster)
 
     # Create the experiments output dir
-    create_dirs([config.output_dir])
+    create_dirs([config.output_dir, config.output_pred_dir, config.output_dif_dir, config.output_eval_dir])
 
     # Create tensorflow session
     sess = tf.Session()
@@ -58,7 +58,7 @@ def main():
     rasters = []
 
     with sess:
-        for i in range(config.num_outputs):
+        for k in range(config.num_outputs):
             data.create_data()
 
             cur_row = 0
@@ -72,36 +72,25 @@ def main():
 
             output_raster = np.empty((chunk_rows * chunk_height, chunk_cols * chunk_width))
 
-            y_pred = sess.run(model.y, feed_dict={model.x: data.prepdata.x_data[0], model.x_proj: config.pop_proj[i] * 1000000})
-            y_pred = y_pred.reshape(data.prepdata.no_chunks, chunk_height, chunk_width)
-
-            for k in range(data.prepdata.no_chunks):
-                if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
-                    cur_row += 1
-                    cur_col = 0
-
-                # Puts one chunk in at a time in the output raster
-                output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
-                    y_pred[k, :, :]
-
-                cur_col += 1
-
             # Predicting for each batch
-            # for i in range(data.batch_num):
-            #     y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
-            #     y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
-            #
-            #
-            #     for j in range(config.batch_size):
-            #         if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
-            #             cur_row += 1
-            #             cur_col = 0
-            #
-            #         output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
-            #             y_pred[j, :, :]
-            #
-            #         cur_col += 1
+            for i in range(data.batch_num):
+                #y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
+                y_pred, y_pred_chunk = sess.run([model.y, model.y_chunk], feed_dict={model.x: data.input[0][i],
+                                                                                     model.x_pop_chunk: data.x_chunk_pop[0][i],
+                                                                                     model.x_proj: config.pop_proj[k] * 1000000,
+                                                                                     model.x_cur_pop: data.prepdata.x_cur_pop[0]})
+                y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
 
+
+                for j in range(config.batch_size):
+                    if chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                        cur_row += 1
+                        cur_col = 0
+
+                    output_raster[cur_row * chunk_height: (cur_row + 1) * chunk_height, cur_col * chunk_width: (cur_col + 1) * chunk_width] = \
+                        y_pred[j, :, :]
+
+                    cur_col += 1
             # Removes the previous input data and adds the output raster
             data.prepdata.x_data = []
 

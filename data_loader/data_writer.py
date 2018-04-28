@@ -12,25 +12,25 @@ class DataWriter():
         self.start_raster = start_raster
         self.output_raster = output_raster
         self.config = config
-        self.output_dir = config.output_dir
+
 
     def write_geotif(self):
         # Finds the number of outputs
-        output_nr = 0
-        for file in os.listdir(self.output_dir):
+        output_nr = 2020
+        for file in os.listdir(self.config.output_pred_dir):
             if file.endswith(".tif"):
-                output_nr += 1
+                output_nr += 10
 
         # Writes the predicted output
-        output_tif = os.path.join(self.output_dir, 'output_{}.tif'.format(output_nr))
-        output_fig = os.path.join(self.output_dir, 'output_{}.png'.format(output_nr))
+        output_tif = os.path.join(self.config.output_pred_dir, 'pred_{}.tif'.format(output_nr))
+        output_fig = os.path.join(self.config.output_pred_dir, 'pred_heat_{}.png'.format(output_nr))
         self.heatmap(output_fig, self.output_raster)
         self.write_to_disk(output_tif, self.output_raster)
 
         # Writes the difference between start point and predicted output
-        diff_output_tif = os.path.join(self.output_dir, 'diff_output_{}.tif'.format(output_nr))
-        diff_output_fig = os.path.join(self.output_dir, 'diff_output_{}.png'.format(output_nr))
-        diff_output_hist = os.path.join(self.output_dir, 'diff_output_hist_{}.png'.format(output_nr))
+        diff_output_tif = os.path.join(self.config.output_dif_dir, 'diff_{}.tif'.format(output_nr))
+        diff_output_fig = os.path.join(self.config.output_dif_dir, 'diff_heat_{}.png'.format(output_nr))
+        diff_output_hist = os.path.join(self.config.output_dif_dir, 'diff_hist_{}.png'.format(output_nr))
 
         start_raster_padded = np.zeros(self.output_raster.shape)
         start_raster_padded[:self.start_raster.shape[0],:self.start_raster.shape[1]] = self.start_raster

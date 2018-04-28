@@ -25,5 +25,8 @@ def process_config(jsonfile):
     config.summary_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "summary/")
     config.checkpoint_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "checkpoint/")
     config.output_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/")
+    config.output_pred_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/", "predictions")
+    config.output_dif_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/", "difference")
+    config.output_eval_dir = os.path.join("../experiments", config.exp_name, config.sub_exp, "outputs/", "evaluation")
 
     return config
