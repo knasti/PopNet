@@ -329,9 +329,14 @@ class PrepTrainTest():
                 x[i].append(self.x_train[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
                 y[i].append(self.y_train[i][j * self.batch_size: (j + 1) * self.batch_size, :, :, :])
                 batch_pop_sum = []
+                batch_pop_sum_array = np.empty([self.batch_size, self.chunk_height, self.chunk_width, 1])
                 for k in range(self.batch_size):
                     batch_pop_sum.append(np.sum(self.x_train[i][j * self.batch_size + k, :, :, 0]))
+                    batch_pop_sum_array[k,:,:,:] = batch_pop_sum[k] # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
+
+                #x[i][j] = np.concatenate((x[i][j][:,:,:,:], batch_pop_sum_array), axis=3)
                 x_chunk_pop[i].append(batch_pop_sum)
+
 
         return x, y, x_chunk_pop, total_train_batches, num_train_batch_list
 
