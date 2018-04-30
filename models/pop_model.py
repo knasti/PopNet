@@ -13,11 +13,11 @@ class PopModel(BaseModel):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, self.config.num_features], name='x')
-        self.x_pop_chunk = tf.placeholder(tf.float32, shape=None, name='x_pop_chunk')  # sum of population in chunks
+        self.x = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, self.config.num_features + 1], name='x')
+        self.x_pop_chunk = tf.placeholder(tf.float32, shape=self.config.batch_size, name='x_pop_chunk')  # sum of population in chunks
         self.x_cur_pop = tf.placeholder(tf.float32, name='x_cur_pop')  # sum of all population in current year
         self.x_proj = tf.placeholder(tf.float32, name='x_proj')  # projection of population in year to come
-        self.y_true = tf.placeholder(tf.float32, shape=[None, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
+        self.y_true = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
 
 
         # Network architecture
