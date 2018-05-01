@@ -54,7 +54,8 @@ def main():
     data = DataGenerator(config, prepdata = prepd)
 
     start_raster = data.prepdata.x_data[0][:,:,0]
-    print(start_raster.shape)
+    prev_raster = start_raster
+
     rasters = []
 
     with sess:
@@ -116,8 +117,10 @@ def main():
             print(np.min(output_raster))
             print(output_raster.shape)
 
-            data_writer = DataWriter(data_loader.geotif[0], start_raster, output_raster, config)
+            data_writer = DataWriter(data_loader.geotif[0], start_raster, prev_raster, output_raster, config)
             data_writer.write_geotif()
+            prev_raster = output_raster
+
 
 
     # # Picking up values reference values needed to export to geotif

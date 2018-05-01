@@ -7,10 +7,11 @@ from osgeo import gdal
 
 class DataWriter():
 
-    def __init__(self, geotif, start_raster, output_raster, config):
+    def __init__(self, geotif, start_raster, prev_raster, output_raster, config):
         self.geotif = geotif
         self.start_raster = start_raster
         self.output_raster = output_raster
+        self.prev_raster = prev_raster
         self.config = config
 
 
@@ -40,6 +41,18 @@ class DataWriter():
         self.heatmap(diff_output_fig, diff_raster)
         self.histogram(diff_output_hist, diff_raster)
         self.write_to_disk(diff_output_tif, diff_raster)
+
+        # Writes the difference between start point and predicted output
+        diff_prev_output_tif = os.path.join(self.config.output_dif_dir, 'diff_prev_{}.tif'.format(output_nr))
+        diff_prev_output_fig = os.path.join(self.config.output_dif_dir, 'diff_prev_heat_{}.png'.format(output_nr))
+        diff_prev_output_hist = os.path.join(self.config.output_dif_dir, 'diff_prev_hist_{}.png'.format(output_nr))
+
+        prev_raster_padded = np.zeros(self.output_raster.shape)
+        prev_raster_padded[:self.prev_raster.shape[0],:self.prev_raster.shape[1]] = self.prev_raster
+        prev_diff_raster = np.subtract(self.output_raster, prev_raster_padded)
+        self.heatmap(diff_prev_output_fig, prev_diff_raster)
+        self.histogram(diff_prev_output_hist, prev_diff_raster)
+        self.write_to_disk(diff_prev_output_tif, prev_diff_raster)
 
     def write_to_disk(self, dir, raster):
         # Picking up values reference values needed to export to geotif
