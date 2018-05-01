@@ -99,6 +99,7 @@ class PrepData():
         self.chunk_height = config.chunk_height
         self.chunk_width = config.chunk_width
         self.no_features = config.num_features
+        self.output_nr = None
         self.chunk_rows = None
         self.chunk_cols = None
         self.no_chunks = None
@@ -173,7 +174,7 @@ class PrepData():
                 batch_pop_sum_array = np.empty([self.batch_size, self.chunk_height, self.chunk_width, 1])
                 for k in range(self.batch_size):
                     batch_pop_sum.append(np.sum(self.x_data[i][j * self.batch_size + k, :, :, 0]))
-                    batch_pop_sum_array[k,:,:,:] = batch_pop_sum[k] # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
+                    batch_pop_sum_array[k,:,:,:] = self.x_proj[self.output_nr] * (batch_pop_sum[k] / self.x_cur_pop[i]) # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
 
                 x[i][j] = np.concatenate((x[i][j][:,:,:,:], batch_pop_sum_array), axis=3)
                 x_chunk_pop[i].append(batch_pop_sum)
@@ -334,7 +335,7 @@ class PrepTrainTest():
                 batch_pop_sum_array = np.empty([self.batch_size, self.chunk_height, self.chunk_width, 1])
                 for k in range(self.batch_size):
                     batch_pop_sum.append(np.sum(self.x_train[i][j * self.batch_size + k, :, :, 0]))
-                    batch_pop_sum_array[k,:,:,:] = batch_pop_sum[k] # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
+                    batch_pop_sum_array[k,:,:,:] = self.x_proj[i] * (batch_pop_sum[k] / self.x_cur_pop[i]) # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
 
                 x[i][j] = np.concatenate((x[i][j][:,:,:,:], batch_pop_sum_array), axis=3)
                 x_chunk_pop[i].append(batch_pop_sum)
@@ -363,7 +364,7 @@ class PrepTrainTest():
                 batch_pop_sum_array = np.empty([self.batch_size, self.chunk_height, self.chunk_width, 1])
                 for k in range(self.batch_size):
                     batch_pop_sum.append(np.sum(self.x_test[i][j * self.batch_size + k, :, :, 0]))
-                    batch_pop_sum_array[k,:,:,:] = batch_pop_sum[k] # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
+                    batch_pop_sum_array[k,:,:,:] = self.x_proj[i] * (batch_pop_sum[k] / self.x_cur_pop[i]) # np.full((self.chunk_height, self.chunk_width, 1), batch_pop_sum[k])
 
                 x[i][j] = np.concatenate((x[i][j][:,:,:,:], batch_pop_sum_array), axis=3)
                 x_chunk_pop[i].append(batch_pop_sum)

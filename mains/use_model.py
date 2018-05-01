@@ -59,6 +59,7 @@ def main():
 
     with sess:
         for k in range(config.num_outputs):
+            data.prepdata.output_nr = k
             data.create_data()
 
             cur_row = 0
@@ -77,7 +78,7 @@ def main():
                 #y_pred = sess.run(model.y, feed_dict={model.x: data.input[0][i]})
                 y_pred, y_pred_chunk = sess.run([model.y, model.y_chunk], feed_dict={model.x: data.input[0][i],
                                                                                      model.x_pop_chunk: data.x_chunk_pop[0][i],
-                                                                                     model.x_proj: config.pop_proj[k] * 1000000,
+                                                                                     model.x_proj: config.pop_proj[k],
                                                                                      model.x_cur_pop: data.prepdata.x_cur_pop[0]})
                 y_pred = y_pred.reshape(config.batch_size, chunk_height, chunk_width)
 
