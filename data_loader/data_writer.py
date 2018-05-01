@@ -24,8 +24,10 @@ class DataWriter():
         # Writes the predicted output
         output_tif = os.path.join(self.config.output_pred_dir, 'pred_{}.tif'.format(output_nr))
         output_fig = os.path.join(self.config.output_pred_dir, 'pred_heat_{}.png'.format(output_nr))
+        output_log = os.path.join(self.config.output_dir, 'log.txt'.format(output_nr))
         self.heatmap(output_fig, self.output_raster)
         self.write_to_disk(output_tif, self.output_raster)
+        self.write_log(output_log, output_nr, self.output_raster)
 
         # Writes the difference between start point and predicted output
         diff_output_tif = os.path.join(self.config.output_dif_dir, 'diff_{}.tif'.format(output_nr))
@@ -77,3 +79,16 @@ class DataWriter():
         plot = sns.distplot(raster.ravel(), kde=False)
         figure = plot.get_figure()
         figure.savefig(dir)
+
+    def write_log(self, dir, output_nr, raster):
+        with open(dir, 'a') as f:
+            f.write('Year {}'.format(output_nr))
+            f.write('\n')
+            f.write('Min value pop: {}'.format(np.amin(raster)))
+            f.write('\n')
+            f.write('Max value pop: {}'.format(np.amax(raster)))
+            f.write('\n')
+            f.write('Sum value pop: {}'.format(np.sum(raster)))
+            f.write('\n')
+            f.write('\n')
+
