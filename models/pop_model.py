@@ -8,7 +8,6 @@ class PopModel(BaseModel):
         self.build_model()
         self.init_saver()
 
-
     def build_model(self):
         # Network placeholders
         self.is_training = tf.placeholder(tf.bool)
@@ -57,6 +56,40 @@ class PopModel(BaseModel):
             beta=0.5,
             name='normalization_2')
 
+        # conv3 = tf.layers.conv2d(
+        #     inputs=norm2,
+        #     filters=6,
+        #     kernel_size=[9, 9],
+        #     strides=(1, 1),
+        #     padding="same",
+        #     activation=tf.nn.relu,
+        #     name='convolution_3')
+        #
+        # norm3 = tf.nn.local_response_normalization(
+        #     conv3,
+        #     depth_radius=5,
+        #     bias=1,
+        #     alpha=1,
+        #     beta=0.5,
+        #     name='normalization_3')
+        #
+        # conv4 = tf.layers.conv2d(
+        #     inputs=norm3,
+        #     filters=6,
+        #     kernel_size=[16, 16],
+        #     strides=(1, 1),
+        #     padding="same",
+        #     activation=tf.nn.relu,
+        #     name='convolution_4')
+        #
+        # norm4 = tf.nn.local_response_normalization(
+        #     conv4,
+        #     depth_radius=5,
+        #     bias=1,
+        #     alpha=1,
+        #     beta=0.5,
+        #     name='normalization_4')
+
         dense1 = tf.layers.dense(inputs=norm2, units=32, activation=tf.nn.relu, name='dense_1')
 
         self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
@@ -83,7 +116,7 @@ class PopModel(BaseModel):
             chunk_height = tf.cast(self.config.chunk_height, dtype='float32')
             chunk_width = tf.cast(self.config.chunk_width, dtype='float32')
             #chunk_y = tf.divide(tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)), tf.multiply(chunk_height, chunk_width))
-            self.pop_total_err = tf.divide(self.y_chunk, tf.multiply(chunk_height, chunk_width))
+            self.pop_total_err = tf.abs(tf.divide(self.y_chunk, tf.multiply(chunk_height, chunk_width)))
         with tf.name_scope("pop_cell_loss"):
             # self.root_mean_square_err = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y_true, self.y))))
             self.mean_absolute_err = tf.reduce_mean(tf.abs(tf.subtract(self.y_true, self.y)))
@@ -97,8 +130,14 @@ class PopModel(BaseModel):
             self.loss_func = tf.add(tf.multiply(self.config.cost_cell, self.mean_absolute_err), tf.multiply(self.config.cost_chunk, self.pop_total_err))
 
             # Initializing the optimizer, that will optimize the root mean square error through backpropagation, and thus learn
+
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss_func,
-                                                                                   global_step=self.global_step_tensor)
+                                                                                    global_step=self.global_step_tensor)
+            #self.train_step = tf.train.MomentumOptimizer(self.config.learning_rate).minimize(self.loss_func,
+            #                                                                        global_step=self.global_step_tensor)
+            #self.train_step = tf.train.GradientDescentOptimizer(self.config.learning_rate).minimize(self.loss_func,
+            #                                                                       global_step=self.global_step_tensor)
+
 
         with tf.name_scope("y_sum"):
             # tf.Print(self.y_sum, [self.y_sum])

@@ -35,8 +35,14 @@ class DataLoader():
             self.geotif.append(pop_data)
             arrays = []
             for i in range(self.no_features):
-                arrays.append(np.array(pop_data.GetRasterBand(i + 1).ReadAsArray()))
+                if i == 0:  # Makes sure outliers are dealt with
+                    pop_array = np.array(pop_data.GetRasterBand(i + 1).ReadAsArray())
+                    pop_array[pop_array > 10000] = 10
+                    arrays.append(pop_array)
+                else:
+                    arrays.append(np.array(pop_data.GetRasterBand(i + 1).ReadAsArray()))
 
+            # arrays[0][arrays[0] > 10000] = arrays[0] / 1000
             array = np.stack(arrays, axis=2)  # stacks the array on top of each other, adding a 3rd dimension (axis = 2)
             print('Min value pop: {}'.format(np.amin(arrays[0])))
             print('Max value pop: {}'.format(np.amax(arrays[0])))
@@ -46,7 +52,7 @@ class DataLoader():
             print('Max value road: {}'.format(np.amax(arrays[2])))
 
             # Null-values (neg-values) are replaced with zeros
-            array[array < 0] = 0
+            # array[array < 0] = 0
             self.arrays.append(array)
 
         # for i in range(len(arrays)):
