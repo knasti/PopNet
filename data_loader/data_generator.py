@@ -113,8 +113,10 @@ class PrepData():
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
                 null_cell_pop = np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1))
-                null_cell_rest = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 1), -1000)
-                null_cells = np.concatenate((null_cell_pop, null_cell_rest), axis=2)
+                null_cell_water = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1), 100)
+                null_cell_road = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1), 50000)
+                null_cell_rest = np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 3))
+                null_cells = np.concatenate((null_cell_pop, null_cell_water, null_cell_road, null_cell_rest), axis=2)
                 self.x_data[i] = np.concatenate((self.x_data[i], null_cells), axis=0)
                 # self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))), axis=0)
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
@@ -122,8 +124,10 @@ class PrepData():
             if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
                 null_cell_pop = np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1))
-                null_cell_rest = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features - 1), -1000) #np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 1), -100)
-                null_cells = np.concatenate((null_cell_pop, null_cell_rest), axis=2)
+                null_cell_water = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1), 100)
+                null_cell_road = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1), 50000)
+                null_cell_rest = np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features - 3)) #np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 1), -100)
+                null_cells = np.concatenate((null_cell_pop, null_cell_water, null_cell_road, null_cell_rest), axis=2)
                 self.x_data[i] = np.concatenate((self.x_data[i], null_cells), axis=1)
                 # self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features))), axis=1)
 
@@ -234,8 +238,10 @@ class PrepTrainTest():
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
                 null_cell_pop = np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1))
-                null_cell_rest = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 1), -1000)
-                null_cells = np.concatenate((null_cell_pop, null_cell_rest), axis=2)
+                null_cell_water = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1), 100)
+                null_cell_road = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1), 50000)
+                null_cell_rest = np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 3))
+                null_cells = np.concatenate((null_cell_pop, null_cell_water, null_cell_road, null_cell_rest), axis=2)
                 self.x_data[i] = np.concatenate((self.x_data[i], null_cells), axis=0)
                 # self.x_data[i] = np.concatenate((self.x_data[i], np.zeros((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features))), axis=0)
             # Takes the number of cols MOD the chunk width to determine if we need to add extra columns (padding)
@@ -243,8 +249,10 @@ class PrepTrainTest():
             if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
                 null_cell_pop = np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1))
-                null_cell_rest = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features - 1), -1000) #np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 1), -100)
-                null_cells = np.concatenate((null_cell_pop, null_cell_rest), axis=2)
+                null_cell_water = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1), 100)
+                null_cell_road = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1), 50000)
+                null_cell_rest = np.zeros((self.x_data[i].shape[0], self.chunk_width - rest_cols, self.no_features - 3)) #np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], self.no_features - 1), -100)
+                null_cells = np.concatenate((null_cell_pop, null_cell_water, null_cell_road, null_cell_rest), axis=2)
                 self.x_data[i] = np.concatenate((self.x_data[i], null_cells), axis=1)
 
             # LABEL (should give the same result as above)
