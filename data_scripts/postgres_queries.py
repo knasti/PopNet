@@ -1,6 +1,6 @@
 import psycopg2
 import time
-def run_queries(landname):
+def run_queries(landname, pgdatabase, pguser, pghost, pgpassword):
     country = landname.lower()
 
     #connect to postgres
@@ -27,8 +27,8 @@ def run_queries(landname):
     print("Creating {0} cover analysis table".format(country))
     # Watercover percentage:
     cur.execute("Create table {0}_cover_analysis as \
-                    SELECT * \
-                    FROM {0}_2015vector;".format(country))  # 4.3 sec
+                    (SELECT * \
+                    FROM {0}_2015vector);".format(country))  # 4.3 sec
     conn.commit()
 
     print("Creating {0} waterbodies layer".format(country))
@@ -43,33 +43,6 @@ def run_queries(landname):
                     select ST_Subdivide(ST_Union(geom)) from a;".format(country))  # 3.32 min
     conn.commit()
 
-    # Indexing necessary tables ----------------------------------------------------------------------------------------
-    print("---------- Indexing necessary tables ----------")
-    #Creating index on vector grid
-    print("Creating gist index on {0} vector grid".format(country))
-    cur.execute("CREATE INDEX {0}_2015vector_gix ON {0}_2015vector USING GIST (geom);".format(country)) # 54 sec
-    conn.commit()
-
-    print("Creating gist index on {0} bounding box layer".format(country))
-    # Creating index on administrative areas bounding box layer
-    cur.execute("CREATE INDEX {0}_bbox_gix ON {0}_bbox USING GIST(geom);".format(country)) # 22 msec
-    conn.commit()
-
-    print("Creating gist index on {0} water layer".format(country))
-    #Creating index on water layer
-    cur.execute("CREATE INDEX {0}_water_gix ON {0}_water USING GIST (geom);".format(country)) # 32 msec
-    conn.commit()
-
-    print("Creating id index on {0}_cover_analysis layer")
-    # Create index on country water cover id
-    cur.execute("CREATE INDEX {0}_cover_analysis_id_index ON {0}_cover_analysis (id);".format(country))  # 4.8 sec
-    conn.commit()
-
-    # print("Creating gist index on {0}_cover_analysis layer".format(country))
-    # # Creating index on water layer
-    # cur.execute("CREATE INDEX {0}_cover_analysis_gix ON {0}_cover_analysis USING GIST (geom);".format(country))
-    # conn.commit()
-
     # -------------------- Adding necessary columns to country cover analysis table --------------------
     print("---------- Adding necessary columns to {0}_cover_analysis table ----------".format(country))
     print("Adding water cover column")
@@ -80,10 +53,10 @@ def run_queries(landname):
     print("Adding road distance column")
     # Adding road distance column to cover analysis table
     cur.execute(
-        "Alter table {0}_cover_analysis ADD column rdist double precision default 99999999;".format(country))  # 14.8 sec
+        "Alter table {0}_cover_analysis ADD column rdist double precision default 50000;".format(country))  # 14.8 sec
     conn.commit()
 
-    print("Adding water cover 1990 column")
+    print("Adding corine cover 1990 column")
     # Adding water cover 1990 to country cover analysis table
     cur.execute("Alter table {0}_cover_analysis ADD column corine_cover90 double precision default 0;".format(country))
     conn.commit()
@@ -93,7 +66,34 @@ def run_queries(landname):
     cur.execute("Alter table {0}_cover_analysis ADD column corine_cover double precision default 0;".format(country))
     conn.commit()
 
-    # getting id number of chunks within the iteration grid covering the country
+    # Indexing necessary tables ----------------------------------------------------------------------------------------
+    print("---------- Indexing necessary tables ----------")
+    # Creating index on vector grid
+    # print("Creating gist index on {0} vector grid".format(country))
+    # cur.execute("CREATE INDEX {0}_2015vector_gix ON {0}_2015vector USING GIST (geom);".format(country))  # 54 sec
+    # conn.commit()
+
+    print("Creating gist index on {0} bounding box layer".format(country))
+    # Creating index on administrative areas bounding box layer
+    cur.execute("CREATE INDEX {0}_bbox_gix ON {0}_bbox USING GIST(geom);".format(country))  # 22 msec
+    conn.commit()
+
+    print("Creating gist index on {0} water layer".format(country))
+    # Creating index on water layer
+    cur.execute("CREATE INDEX {0}_water_gix ON {0}_water USING GIST (geom);".format(country))  # 32 msec
+    conn.commit()
+
+    print("Creating id index on {0}_cover_analysis layer".format(country))
+    # Create index on country water cover id
+    cur.execute("CREATE INDEX {0}_cover_analysis_id_index ON {0}_cover_analysis (id);".format(country))  # 4.8 sec
+    conn.commit()
+
+    print("Creating gist index on {0}_cover_analysis layer".format(country))
+    # Creating index on water layer
+    cur.execute("CREATE INDEX {0}_cover_analysis_gix ON {0}_cover_analysis USING GIST (geom);".format(country))
+    conn.commit()
+
+    # getting id number of chunks within the iteration grid covering the country ---------------------------------------
     ids = []
     cur.execute("SELECT gid FROM {0}_iteration_grid;".format(country))
     chunk_id = cur.fetchall()
@@ -224,7 +224,7 @@ def run_queries(landname):
             # Create table containing water_cover cell id and distance ALL
             cur.execute("WITH a AS (SELECT Distinct ON (chunk_nr{1}.id) chunk_nr{1}.id as id, \
             ST_Distance(chunk_nr{1}.geom, {0}_iterate_roads.geom) AS r_dist from {0}_iterate_roads, chunk_nr{1}, {0}_adm \
-            WHERE ST_Intersects(chunk_nr{1}.geom, {0}_adm.geom) AND st_DWithin(chunk_nr{1}.geom, {0}_iterate_roads.geom, 30000) order by chunk_nr{1}.id, r_dist asc) \
+            WHERE st_DWithin(chunk_nr{1}.geom, {0}_iterate_roads.geom, 30000) order by chunk_nr{1}.id, r_dist asc) \
             UPDATE {0}_cover_analysis SET rdist = r_dist from a WHERE a.id = {0}_cover_analysis.id;".format(country, chunk))  # 4.1 sec
             conn.commit()
 
@@ -300,7 +300,7 @@ def run_queries(landname):
             cur.execute("WITH a AS (SELECT chunk_nr{1}.id, sum(ST_AREA(ST_INTERSECTION(chunk_nr{1}.geom, subdivided_{0}_corine90.geom))/62500*100) as corinecover \
                             FROM chunk_nr{1}, subdivided_{0}_corine90 WHERE ST_intersects(chunk_nr{1}.geom, subdivided_{0}_corine90.geom) \
                             GROUP BY id) \
-                            UPDATE {0}_cover_analysis SET corine_cover = corinecover from a WHERE a.id = {0}_cover_analysis.id;".format(country, chunk))
+                            UPDATE {0}_cover_analysis SET corine_cover90 = corinecover from a WHERE a.id = {0}_cover_analysis.id;".format(country, chunk))
             conn.commit()
 
             # stop single chunk time timer

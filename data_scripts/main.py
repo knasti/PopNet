@@ -4,13 +4,20 @@ import os
 from process import process_data
 
 # ATTENSION ------------------------------------------------------------------------------------------------------------
-# Before running this script, a database should be created in postgres with a postgis extension and the database
-# information entered below. Furthermore, the Project_data folder, containing the data and a Temp folder containing a
+# Before running this script, a database should be created in postgres and the database information entered below, if
+# it's not the same. Furthermore, the Project_data folder, containing the data and a Temp folder containing a
 # Data_from_postgres folder should be created. The scripts (main, process, import_to_postgres, postgres_to_shp,
 # postgres_queries and rast_to_vec_grid) should be placed in the same folder as the Project_data and Temp folder.
 
+# Folder strudture:
+# scripts
+# Project_data
+# Finished_data
+# Temp
+    # Data_from_postgres
+
 # Specify country to extract data from ---------------------------------------------------------------------------------
-country = 'Denmark'
+country = 'France'
 
 # Specify database information -----------------------------------------------------------------------------------------
 # path to postgresql bin folder
@@ -25,7 +32,7 @@ pgdatabase = 'raster_database'
 # Get path to main script
 python_script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Paths for the data / folders in Project_data -------------------------------------------------------------------------
+# Paths for the data / folders in the Project_data folder --------------------------------------------------------------
 #path to ancillary data folder
 ancillary_data_folder_path = python_script_dir + "\Project_data\Ancillary_data"
 #path to GADM folder
