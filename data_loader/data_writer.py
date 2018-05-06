@@ -83,15 +83,17 @@ class DataWriter():
 
     def heatmap(self, dir, raster):
         plt.figure()
-        plot = sns.heatmap(raster)
+        plot = sns.heatmap(raster, cmap="YlOrRd", yticklabels=False, xticklabels=False)
         figure = plot.get_figure()
         figure.savefig(dir)
+        plt.close()
 
     def histogram(self, dir, raster):
         plt.figure()
         plot = sns.distplot(raster.ravel(), kde=False)
         figure = plot.get_figure()
         figure.savefig(dir)
+        plt.close()
 
     def write_log(self, dir, output_nr, raster):
         with open(dir, 'a') as f:
