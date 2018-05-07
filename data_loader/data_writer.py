@@ -87,6 +87,7 @@ class DataWriter():
         plot = sns.heatmap(raster, cmap="YlOrRd_r", yticklabels=False, xticklabels=False)
         figure = plot.get_figure()
         figure.savefig(dir)
+        plt.clf()
         plt.close()
 
     def histogram(self, dir, raster):
@@ -96,6 +97,7 @@ class DataWriter():
         plt.ylabel('No. of cells')
         figure = plot.get_figure()
         figure.savefig(dir)
+        plt.clf()
         plt.close()
 
     def write_log(self, dir, output_nr, raster):
