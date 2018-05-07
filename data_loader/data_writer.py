@@ -3,6 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 import osr
+import pandas as pd
 from osgeo import gdal
 
 class DataWriter():
@@ -83,7 +84,7 @@ class DataWriter():
 
     def heatmap(self, dir, raster):
         plt.figure()
-        plot = sns.heatmap(raster, cmap="YlOrRd", yticklabels=False, xticklabels=False)
+        plot = sns.heatmap(raster, cmap="YlOrRd_r", yticklabels=False, xticklabels=False)
         figure = plot.get_figure()
         figure.savefig(dir)
         plt.close()
@@ -91,6 +92,8 @@ class DataWriter():
     def histogram(self, dir, raster):
         plt.figure()
         plot = sns.distplot(raster.ravel(), kde=False)
+        plt.xlabel('Population Difference')
+        plt.ylabel('No. of cells')
         figure = plot.get_figure()
         figure.savefig(dir)
         plt.close()
