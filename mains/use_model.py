@@ -32,7 +32,7 @@ def main():
     data_loader.load_directory('.tif')
     data_loader.create_np_arrays()
 
-    prepd = PrepData(config)
+    prepd = PrepData(config, data_loader)
 
     start_raster = data_loader.arrays[-1]
 
@@ -97,9 +97,10 @@ def main():
             data.prepdata.x_data = []
 
             new_input = data_loader.arrays[-1]
-            new_input = np.concatenate((new_input, np.zeros((output_raster.shape[0] - new_input.shape[0], new_input.shape[1], new_input.shape[2]))), axis=0)
-            new_input = np.concatenate((new_input, np.zeros((new_input.shape[0], output_raster.shape[1] - new_input.shape[1], new_input.shape[2]))), axis=1)
-            new_input[:, :, 0] = output_raster
+            # new_input = np.concatenate((new_input, np.zeros((output_raster.shape[0] - new_input.shape[0], new_input.shape[1], new_input.shape[2]))), axis=0)
+            # new_input = np.concatenate((new_input, np.zeros((new_input.shape[0], output_raster.shape[1] - new_input.shape[1], new_input.shape[2]))), axis=1)
+            new_input[:, :, 0] = output_raster[:new_input.shape[0], :new_input.shape[1]]
+
             data.prepdata.add_data(new_input)
             rasters.append(output_raster)
 

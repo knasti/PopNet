@@ -28,7 +28,7 @@ class DataWriter():
         output_fig = os.path.join(self.config.output_pred_dir, 'pred_heat_{}.png'.format(output_nr))
         output_log = os.path.join(self.config.output_dir, 'log.txt'.format(output_nr))
         self.heatmap(output_fig, self.output_raster)
-        self.write_to_disk(output_tif, self.output_raster)
+        self.write_tif_to_disk(output_tif, self.output_raster)
         self.write_log(output_log, output_nr, self.output_raster)
 
         # Writes the difference between start point and predicted output
@@ -41,7 +41,7 @@ class DataWriter():
         diff_raster = np.subtract(self.output_raster, start_raster_padded)
         self.heatmap(diff_output_fig, diff_raster)
         self.histogram(diff_output_hist, diff_raster)
-        self.write_to_disk(diff_output_tif, diff_raster)
+        self.write_tif_to_disk(diff_output_tif, diff_raster)
 
         # Writes the difference between start point and predicted output
         diff_prev_output_tif = os.path.join(self.config.output_dif_dir, 'diff_prev_{}.tif'.format(output_nr))
@@ -53,7 +53,7 @@ class DataWriter():
         prev_diff_raster = np.subtract(self.output_raster, prev_raster_padded)
         self.heatmap(diff_prev_output_fig, prev_diff_raster)
         self.histogram(diff_prev_output_hist, prev_diff_raster)
-        self.write_to_disk(diff_prev_output_tif, prev_diff_raster)
+        self.write_tif_to_disk(diff_prev_output_tif, prev_diff_raster)
 
     def write_tif_to_disk(self, dir, raster):
         # Picking up values reference values needed to export to geotif

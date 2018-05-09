@@ -27,6 +27,7 @@ class DataGenerator():
 
     def create_data(self):
         self.prepdata.create_chunks()
+        # self.prepdata.input_to_tif()
         # self.prepdata.normalize_data()
         self.input, self.x_chunk_pop, self.batch_num, self.list_batch_num = self.prepdata.create_batches()
 
@@ -94,7 +95,7 @@ class DataGenerator():
 
 
 class PrepData():
-    def __init__(self, config):
+    def __init__(self, config, data_loader):
         self.x_data = []
         self.x_cur_pop = []
         self.x_proj = config.pop_proj
@@ -106,6 +107,9 @@ class PrepData():
         self.chunk_rows = None
         self.chunk_cols = None
         self.no_chunks = None
+        self.data_loader = data_loader
+        self.config = config
+        self.input_counter = 2010
 
     def create_chunks(self):
         # Runs through all of the data / label pairs
@@ -210,6 +214,27 @@ class PrepData():
         self.x_data.append(x_data)
         self.x_cur_pop.append(np.sum(x_data[:, :, 0]))
 
+    def input_to_tif(self):
+        raster = np.empty((self.chunk_rows * self.chunk_height, self.chunk_cols * self.chunk_width, self.no_features))
+        datawriter = DataWriter(self.data_loader.geotif[0])
+
+        for i in range(len(self.x_data)):
+            cur_row = 0
+            cur_col = 0
+            for j in range(self.no_chunks):
+                if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                    cur_row += 1
+                    cur_col = 0
+                self.x_data[i]
+                raster[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height, cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width, :] = self.x_data[i][j]
+
+                cur_col += 1
+
+            for j in range(self.no_features):
+                input_dir = os.path.join(self.config.input_dir, 'input_{}_{}.tif'.format(self.input_counter, j + 1))
+                input = raster[:, :, j]
+                datawriter.write_tif_to_disk(input_dir, input)
+        self.input_counter += 10
 
 class PrepTrainTest():
     def __init__(self, config, data_loader):
@@ -408,7 +433,7 @@ class PrepTrainTest():
     def input_to_tif(self):
         raster = np.empty((self.chunk_rows * self.chunk_height, self.chunk_cols * self.chunk_width, self.no_features))
         datawriter = DataWriter(self.data_loader.geotif[0])
-        print(raster.shape)
+
         for i in range(len(self.x_data)):
             cur_row = 0
             cur_col = 0
@@ -424,10 +449,6 @@ class PrepTrainTest():
             for j in range(self.no_features):
                 input_dir = os.path.join(self.config.input_dir, 'input_{}_{}.tif'.format(i + 1, j + 1))
                 input = raster[:, :, j]
-                print('im raster')
-                print(raster.shape)
-                print('im input')
-                print(input.shape)
                 datawriter.write_tif_to_disk(input_dir, input)
-        print(raster)
+
 
