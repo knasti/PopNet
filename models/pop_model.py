@@ -18,14 +18,18 @@ class PopModel(BaseModel):
         self.x_proj = tf.placeholder(tf.float32, name='x_proj')  # projection of population in year to come
         self.y_true = tf.placeholder(tf.float32, shape=[self.config.batch_size, self.config.chunk_height, self.config.chunk_width, 1], name='y_true')
 
+        # Padding works like:
+        # [[batch size], [chunk height], [chunk width], [no. features]]
+        paddings_3 = tf.constant([[0, 0], [1, 1], [1, 1], [0, 0]])  # (3 - 1) / 2 = 1
+        paddings_5 = tf.constant([[0, 0], [2, 2], [2, 2], [0, 0]])  # (5 - 1) / 2 = 2
+        paddings_7 = tf.constant([[0, 0], [3, 3], [3, 3], [0, 0]])  # (7 - 1) / 2 = 3
 
         # Network architecture
         conv1 = tf.layers.conv2d(
-            inputs=self.x,
-            filters=6,
+            inputs=tf.pad(self.x, paddings_7, "SYMMETRIC"),
+            filters=64,
             kernel_size=[7, 7], # [filter height, filter width]
-            strides=(1, 1),
-            padding="same",
+            padding="valid",
             activation=tf.nn.relu,
             name='convolution_1')
 
@@ -40,11 +44,10 @@ class PopModel(BaseModel):
         # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
 
         conv2 = tf.layers.conv2d(
-            inputs=norm1,
-            filters=6,
+            inputs=tf.pad(norm1, paddings_5, "SYMMETRIC"),
+            filters=64,
             kernel_size=[5, 5],
-            strides=(1, 1),
-            padding="same",
+            padding="valid",
             activation=tf.nn.relu,
             name='convolution_2')
 
@@ -56,23 +59,22 @@ class PopModel(BaseModel):
             beta=0.5,
             name='normalization_2')
 
-        # conv3 = tf.layers.conv2d(
-        #     inputs=norm2,
-        #     filters=6,
-        #     kernel_size=[9, 9],
-        #     strides=(1, 1),
-        #     padding="same",
-        #     activation=tf.nn.relu,
-        #     name='convolution_3')
-        #
-        # norm3 = tf.nn.local_response_normalization(
-        #     conv3,
-        #     depth_radius=5,
-        #     bias=1,
-        #     alpha=1,
-        #     beta=0.5,
-        #     name='normalization_3')
-        #
+        conv3 = tf.layers.conv2d(
+            inputs=tf.pad(norm2, paddings_3, "SYMMETRIC"),
+            filters=32,
+            kernel_size=[3, 3],
+            padding="valid",
+            activation=tf.nn.relu,
+            name='convolution_3')
+
+        norm3 = tf.nn.local_response_normalization(
+            conv3,
+            depth_radius=5,
+            bias=1,
+            alpha=1,
+            beta=0.5,
+            name='normalization_3')
+
         # conv4 = tf.layers.conv2d(
         #     inputs=norm3,
         #     filters=6,
@@ -90,7 +92,7 @@ class PopModel(BaseModel):
         #     beta=0.5,
         #     name='normalization_4')
 
-        dense1 = tf.layers.dense(inputs=norm2, units=32, activation=tf.nn.relu, name='dense_1')
+        dense1 = tf.layers.dense(inputs=norm3, units=32, activation=tf.nn.relu, name='dense_1')
 
         self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
 
