@@ -8,7 +8,7 @@ from osgeo import gdal
 
 class DataWriter():
 
-    def __init__(self, geotif, start_raster, prev_raster, output_raster, config):
+    def __init__(self, geotif, start_raster=None, prev_raster=None, output_raster=None, config=None):
         self.geotif = geotif
         self.start_raster = start_raster
         self.output_raster = output_raster
@@ -16,7 +16,7 @@ class DataWriter():
         self.config = config
 
 
-    def write_geotif(self):
+    def write_outputs(self):
         # Finds the number of outputs
         output_nr = 2020
         for file in os.listdir(self.config.output_pred_dir):
@@ -55,7 +55,7 @@ class DataWriter():
         self.histogram(diff_prev_output_hist, prev_diff_raster)
         self.write_to_disk(diff_prev_output_tif, prev_diff_raster)
 
-    def write_to_disk(self, dir, raster):
+    def write_tif_to_disk(self, dir, raster):
         # Picking up values reference values needed to export to geotif
         projection = osr.SpatialReference()
         projection.ImportFromWkt(self.geotif.GetProjectionRef())

@@ -118,7 +118,7 @@ def main():
             print(output_raster.shape)
 
             data_writer = DataWriter(data_loader.geotif[0], start_raster, prev_raster, output_raster, config)
-            data_writer.write_geotif()
+            data_writer.write_outputs()
             prev_raster = output_raster
 
 

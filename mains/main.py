@@ -38,7 +38,7 @@ def main():
     data_loader.create_np_arrays()
     data_loader.create_data_label_pairs()
 
-    preptt = PrepTrainTest(config)
+    preptt = PrepTrainTest(config, data_loader)
 
     for i in range(len(data_loader.data_label_pairs)):
         x_data = data_loader.data_label_pairs[i][0][:, :, :]
@@ -47,7 +47,7 @@ def main():
         preptt.add_data(x_data, y_true)
 
     # Create the experiments dirs
-    create_dirs([config.summary_dir, config.checkpoint_dir])
+    create_dirs([config.summary_dir, config.checkpoint_dir, config.input_dir])
 
     # Create tensorflow session
     sess = tf.Session()

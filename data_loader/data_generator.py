@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from data_loader.data_writer import DataWriter
+import os
 
 class DataGenerator():
     def __init__(self, config, preptraintest = None, prepdata = None):
@@ -17,6 +19,7 @@ class DataGenerator():
 
     def create_traintest_data(self):
         self.preptraintest.create_chunks()
+        # self.preptraintest.input_to_tif()
         self.preptraintest.create_train_test_split()
         # self.preptraintest.normalize_data()
         self.train_data, self.train_labels, self.train_label_pop, self.num_train_batches, self.list_num_train_batches = self.preptraintest.train_batches()
@@ -209,7 +212,7 @@ class PrepData():
 
 
 class PrepTrainTest():
-    def __init__(self, config):
+    def __init__(self, config, data_loader):
         self.batch_size = config.batch_size
         self.chunk_height = config.chunk_height
         self.chunk_width = config.chunk_width
@@ -228,6 +231,8 @@ class PrepTrainTest():
         self.chunk_rows = None
         self.chunk_cols = None
         self.no_chunks = None
+        self.data_loader = data_loader
+        self.config = config
 
     def create_chunks(self):
         # Runs through all of the data / label pairs
@@ -400,4 +405,29 @@ class PrepTrainTest():
         self.x_proj.append(np.sum(y_true))
         self.x_cur_pop.append(np.sum(x_data[:,:,0]))
 
+    def input_to_tif(self):
+        raster = np.empty((self.chunk_rows * self.chunk_height, self.chunk_cols * self.chunk_width, self.no_features))
+        datawriter = DataWriter(self.data_loader.geotif[0])
+        print(raster.shape)
+        for i in range(len(self.x_data)):
+            cur_row = 0
+            cur_col = 0
+            for j in range(self.no_chunks):
+                if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
+                    cur_row += 1
+                    cur_col = 0
+                self.x_data[i]
+                raster[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height, cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width, :] = self.x_data[i][j]
+
+                cur_col += 1
+
+            for j in range(self.no_features):
+                input_dir = os.path.join(self.config.input_dir, 'input_{}_{}.tif'.format(i + 1, j + 1))
+                input = raster[:, :, j]
+                print('im raster')
+                print(raster.shape)
+                print('im input')
+                print(input.shape)
+                datawriter.write_tif_to_disk(input_dir, input)
+        print(raster)
 
