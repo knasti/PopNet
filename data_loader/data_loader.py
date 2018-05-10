@@ -6,7 +6,8 @@ class DataLoader():
 
     def __init__(self, data_dir, config):
         self.data_dir = data_dir
-        self.no_features = config.num_features
+        self.no_features = sum(config.feature_list)
+        self.feature_list = config.feature_list
         self.files = []
         self.arrays = []
         self.geotif = []
@@ -34,13 +35,14 @@ class DataLoader():
             pop_data = gdal.Open(os.path.join(self.data_dir, file))
             self.geotif.append(pop_data)
             arrays = []
-            for i in range(self.no_features):
-                if i == 0:  # Makes sure outliers are dealt with
-                    pop_array = np.array(pop_data.GetRasterBand(i + 1).ReadAsArray())
-                    pop_array[pop_array > 10000] = 10
-                    arrays.append(pop_array)
-                else:
-                    arrays.append(np.array(pop_data.GetRasterBand(i + 1).ReadAsArray()))
+            for i in range(len(self.feature_list)):
+                if self.feature_list[i] == 1:
+                    if i == 0:  # Makes sure outliers are dealt with
+                        pop_array = np.array(pop_data.GetRasterBand(i + 1).ReadAsArray())
+                        pop_array[pop_array > 10000] = 10
+                        arrays.append(pop_array)
+                    else:
+                        arrays.append(np.array(pop_data.GetRasterBand(i + 1).ReadAsArray()))
 
             # arrays[0][arrays[0] > 10000] = arrays[0] / 1000
             array = np.stack(arrays, axis=2)  # stacks the array on top of each other, adding a 3rd dimension (axis = 2)
