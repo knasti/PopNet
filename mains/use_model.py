@@ -93,12 +93,27 @@ def main():
                         y_pred[j, :, :]
 
                     cur_col += 1
+
+
+
+            # Removes null-cells at the start of the array
+            output_raster = output_raster[data.prepdata.offset_rows:, data.prepdata.offset_cols:]
+
+            # Makes sure the right amount of null-cells are removed from the end of the array
+            if data.prepdata.row_null_cells == 0 and data.prepdata.col_null_cells == 0:
+                pass
+            elif data.prepdata.row_null_cells == 0:
+                output_raster = output_raster[:, :-data.prepdata.col_null_cells]
+            elif data.prepdata.col_null_cells == 0:
+                output_raster = output_raster[:-data.prepdata.row_null_cells, :]
+            else:
+                output_raster = output_raster[:-data.prepdata.row_null_cells, :-data.prepdata.col_null_cells]
+
             # Removes the previous input data and adds the output raster
             data.prepdata.x_data = []
 
+            # Replaces the old population with the predicted one, keeps the other features constant
             new_input = data_loader.arrays[-1]
-            # new_input = np.concatenate((new_input, np.zeros((output_raster.shape[0] - new_input.shape[0], new_input.shape[1], new_input.shape[2]))), axis=0)
-            # new_input = np.concatenate((new_input, np.zeros((new_input.shape[0], output_raster.shape[1] - new_input.shape[1], new_input.shape[2]))), axis=1)
             new_input[:, :, 0] = output_raster[:new_input.shape[0], :new_input.shape[1]]
 
             data.prepdata.add_data(new_input)

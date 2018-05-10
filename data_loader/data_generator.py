@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from data_loader.data_writer import DataWriter
 import os
+from random import randint
 
 class DataGenerator():
     def __init__(self, config, preptraintest = None, prepdata = None):
@@ -113,16 +114,39 @@ class PrepData():
 
     def create_chunks(self):
         # Runs through all of the data / label pairs
+        self.offset_rows = randint(0, round(self.chunk_height / 2))
+        self.offset_cols = randint(0, round(self.chunk_width / 2))
+        self.row_null_cells = 0
+        self.col_null_cells = 0
+
         for i in range(len(self.x_data)):
+            # Adding extra null cells in the beginning to offset the chunks
+            row_addition_list = []
+            for j in range(len(self.config.feature_list)):
+                if self.config.feature_list[j] == 1:
+                    row_addition_feature = np.full((self.offset_rows, self.x_data[i].shape[1], 1), self.config.feature_values[j])
+                    row_addition_list.append(row_addition_feature)
+            row_additions = np.concatenate(row_addition_list, axis=2)
+            self.x_data[i] = np.concatenate((row_additions, self.x_data[i]), axis=0)
+
+            col_addition_list = []
+            for j in range(len(self.config.feature_list)):
+                if self.config.feature_list[j] == 1:
+                    col_addition_feature = np.full((self.x_data[i].shape[0], self.offset_cols, 1), self.config.feature_values[j])
+                    col_addition_list.append(col_addition_feature)
+            col_additions = np.concatenate(col_addition_list, axis=2)
+            self.x_data[i] = np.concatenate((col_additions, self.x_data[i]), axis=1)
+
             # INPUT DATA
             # Takes the number of rows MOD the chunk height to determine if we need to add extra rows (padding)
             rest_rows = self.x_data[i].shape[0] % self.chunk_height
             if rest_rows != 0:
                 # Adds rows until the input data matches with the chunk height
                 null_cells_list = []
+                self.row_null_cells = self.chunk_height - rest_rows
                 for j in range(len(self.config.feature_list)):
                     if self.config.feature_list[j] == 1:
-                        null_cell_feature = np.full((self.chunk_height - rest_rows, self.x_data[i].shape[1], 1), self.config.feature_values[j])
+                        null_cell_feature = np.full((self.row_null_cells, self.x_data[i].shape[1], 1), self.config.feature_values[j])
                         null_cells_list.append(null_cell_feature)
 
                 null_cells = np.concatenate(null_cells_list, axis=2)
@@ -133,9 +157,10 @@ class PrepData():
             if rest_cols != 0:
                 # Adds columns until the input data matches with the chunk width
                 null_cells_list = []
+                self.col_null_cells = self.chunk_width - rest_cols
                 for j in range(len(self.config.feature_list)):
                     if self.config.feature_list[j] == 1:
-                        null_cell_feature = np.full((self.x_data[i].shape[0], self.chunk_width - rest_cols, 1), self.config.feature_values[j])
+                        null_cell_feature = np.full((self.x_data[i].shape[0], self.col_null_cells, 1), self.config.feature_values[j])
                         null_cells_list.append(null_cell_feature)
 
                 null_cells = np.concatenate(null_cells_list, axis=2)
