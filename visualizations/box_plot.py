@@ -6,15 +6,15 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
-geotif_2020 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2020.tif')
-geotif_2030 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2030.tif')
-geotif_2040 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2040.tif')
-geotif_2050 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2050.tif')
-geotif_2060 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2060.tif')
-geotif_2070 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2070.tif')
-geotif_2080 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2080.tif')
-geotif_2090 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2090.tif')
-geotif_2100 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2100.tif')
+geotif_2020 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2020.tif')
+geotif_2030 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2030.tif')
+geotif_2040 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2040.tif')
+geotif_2050 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2050.tif')
+geotif_2060 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2060.tif')
+geotif_2070 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2070.tif')
+geotif_2080 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2080.tif')
+geotif_2090 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2090.tif')
+geotif_2100 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2100.tif')
 
 np_2020 = np.array(geotif_2020.GetRasterBand(1).ReadAsArray()).flatten()
 np_2030 = np.array(geotif_2030.GetRasterBand(1).ReadAsArray()).flatten()
@@ -25,10 +25,6 @@ np_2070 = np.array(geotif_2070.GetRasterBand(1).ReadAsArray()).flatten()
 np_2080 = np.array(geotif_2080.GetRasterBand(1).ReadAsArray()).flatten()
 np_2090 = np.array(geotif_2090.GetRasterBand(1).ReadAsArray()).flatten()
 np_2100 = np.array(geotif_2100.GetRasterBand(1).ReadAsArray()).flatten()
-
-# Without zeros
-
-
 
 population = np.concatenate((np_2020, np_2030))
 year = np.concatenate((np.full(np_2020.shape, '2020'), np.full(np_2030.shape, '2030')))

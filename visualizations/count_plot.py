@@ -6,15 +6,15 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
-geotif_2020 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2020.tif')
-# geotif_2030 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2030.tif')
-# geotif_2040 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2040.tif')
-geotif_2050 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2050.tif')
-# geotif_2060 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2060.tif')
-# geotif_2070 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2070.tif')
-# geotif_2080 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2080.tif')
-# geotif_2090 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2090.tif')
-geotif_2100 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\denmark\test_num_feat_3\outputs\predictions\pred_2100.tif')
+geotif_2020 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2020.tif')
+# geotif_2030 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2030.tif')
+# geotif_2040 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2040.tif')
+geotif_2050 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2050.tif')
+# geotif_2060 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2060.tif')
+# geotif_2070 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2070.tif')
+# geotif_2080 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2080.tif')
+# geotif_2090 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2090.tif')
+geotif_2100 = gdal.Open(r'C:\Users\Niels\Documents\GitHub\PopNet\experiments\france\final\pred_2100.tif')
 
 np_2020 = np.array(geotif_2020.GetRasterBand(1).ReadAsArray()).flatten()
 # np_2030 = np.array(geotif_2030.GetRasterBand(1).ReadAsArray()).flatten()
@@ -64,10 +64,10 @@ df.loc[df.Categories == 3, 'Categories'] = '101 - 250'
 df.loc[df.Categories == 4, 'Categories'] = '251 - 500'
 df.loc[df.Categories == 5, 'Categories'] = '500+'
 
-print(df.Categories.unique())
 
+sns.set(style='whitegrid')
 fig = plt.figure()
-ax = sns.countplot(x="Categories", hue="Year", data=df)
+ax = sns.countplot(x="Categories", hue="Year", data=df, order=['0 - 50', '51 - 100', '101 - 250', '251 - 500', '500+'])
 ax.set_xlabel('Population intervals')
 ax.set_ylabel('No. of cells')
 plt.savefig('count_plot.png', bbox_inches='tight')
