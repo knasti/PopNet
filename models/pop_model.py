@@ -26,64 +26,66 @@ class PopModel(BaseModel):
 
         # Network architecture
         conv1 = tf.layers.conv2d(
-            inputs=tf.pad(self.x, paddings_7, "SYMMETRIC"),
-            filters=64,
-            kernel_size=[7, 7], # [filter height, filter width]
+            inputs=tf.pad(self.x, paddings_3, "SYMMETRIC"),
+            filters=256,
+            strides=(1, 1),
+            kernel_size=[3, 3], # [filter height, filter width]
             padding="valid",
             activation=tf.nn.relu,
             name='convolution_1')
 
-        norm1 = tf.nn.local_response_normalization(
-            conv1,
-            depth_radius=5,
-            bias=1,
-            alpha=1,
-            beta=0.5,
-            name='normalization_1')
-
-        # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
-
+        # norm1 = tf.nn.local_response_normalization(
+        #     conv1,
+        #     depth_radius=5,
+        #     bias=1,
+        #     alpha=1,
+        #     beta=0.5,
+        #     name='normalization_1')
+        #
+        # # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
+        #
         conv2 = tf.layers.conv2d(
-            inputs=tf.pad(norm1, paddings_5, "SYMMETRIC"),
-            filters=64,
-            kernel_size=[5, 5],
+            inputs=tf.pad(conv1, paddings_3, "SYMMETRIC"),
+            filters=256,
+            strides=(1, 1),
+            kernel_size=[3, 3],
             padding="valid",
             activation=tf.nn.relu,
             name='convolution_2')
-
-        norm2 = tf.nn.local_response_normalization(
-            conv2,
-            depth_radius=5,
-            bias=1,
-            alpha=1,
-            beta=0.5,
-            name='normalization_2')
-
+        #
+        # norm2 = tf.nn.local_response_normalization(
+        #     conv2,
+        #     depth_radius=5,
+        #     bias=1,
+        #     alpha=1,
+        #     beta=0.5,
+        #     name='normalization_2')
+        #
         conv3 = tf.layers.conv2d(
-            inputs=tf.pad(norm2, paddings_3, "SYMMETRIC"),
-            filters=32,
+            inputs=tf.pad(conv2, paddings_3, "SYMMETRIC"),
+            filters=256,
             kernel_size=[3, 3],
             padding="valid",
             activation=tf.nn.relu,
             name='convolution_3')
 
-        norm3 = tf.nn.local_response_normalization(
-            conv3,
-            depth_radius=5,
-            bias=1,
-            alpha=1,
-            beta=0.5,
-            name='normalization_3')
-
+        # norm3 = tf.nn.local_response_normalization(
+        #     conv3,
+        #     depth_radius=5,
+        #     bias=1,
+        #     alpha=1,
+        #     beta=0.5,
+        #     name='normalization_3')
+        #
         # conv4 = tf.layers.conv2d(
-        #     inputs=norm3,
-        #     filters=6,
-        #     kernel_size=[16, 16],
+        #     inputs=tf.pad(conv3, paddings_3, "SYMMETRIC"),
+        #     filters=256,
+        #     kernel_size=[3, 3],
         #     strides=(1, 1),
-        #     padding="same",
+        #     padding="valid",
         #     activation=tf.nn.relu,
         #     name='convolution_4')
-        #
+
         # norm4 = tf.nn.local_response_normalization(
         #     conv4,
         #     depth_radius=5,
@@ -92,11 +94,11 @@ class PopModel(BaseModel):
         #     beta=0.5,
         #     name='normalization_4')
 
-        dense1 = tf.layers.dense(inputs=norm3, units=32, activation=tf.nn.relu, name='dense_1')
+        dense1 = tf.layers.dense(inputs=conv3, units=512, activation=tf.nn.relu, name='dense_1')
 
         self.y = tf.layers.dense(inputs=dense1, units=1, name='y')
 
-        self.y_chunk = tf.subtract(tf.reduce_sum(self.y, axis=0), tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)))
+        self.y_chunk = tf.subtract(tf.reduce_sum(tf.abs(self.y), axis=0), tf.multiply(self.x_proj, tf.divide(self.x_pop_chunk, self.x_cur_pop)))
 
         # y_sum = tf.Variable(0)
         #
