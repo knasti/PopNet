@@ -55,59 +55,59 @@ for sub_dir in sub_dirs:
         pop_array = np.array(pop_data.GetRasterBand(1).ReadAsArray())
         if file == 'pred_2020.tif':
             if type(pred_2020) is np.ndarray:
-                pred_2020 = pred_2020 + pop_array
+                pred_2020 += pop_array
             else:
                 pred_2020 = pop_array
             print(np.max(pop_array))
-                
+
         elif file == 'pred_2030.tif':
             if type(pred_2030) is np.ndarray:
-                pred_2030 = pred_2030 + pop_array
+                pred_2030 += pop_array
             else:
                 pred_2030 = pop_array
-                
+
         elif file == 'pred_2040.tif':
             if type(pred_2040) is np.ndarray:
-                pred_2040 = pred_2040 + pop_array
+                pred_2040 += pop_array
             else:
                 pred_2040 = pop_array
-                
+
         elif file == 'pred_2050.tif':
             if type(pred_2050) is np.ndarray:
-                pred_2050 = pred_2050 + pop_array
+                pred_2050 += pop_array
             else:
                 pred_2050 = pop_array
-                
+
         elif file == 'pred_2060.tif':
             if type(pred_2060) is np.ndarray:
-                pred_2060 = pred_2060 + pop_array
+                pred_2060 += pop_array
             else:
                 pred_2060 = pop_array
-                
+
         elif file == 'pred_2070.tif':
             if type(pred_2070) is np.ndarray:
-                pred_2070 = pred_2070 + pop_array
+                pred_2070 += pop_array
             else:
                 pred_2070 = pop_array
-                
+
         elif file == 'pred_2080.tif':
             if type(pred_2080) is np.ndarray:
-                pred_2080 = pred_2080 + pop_array
+                pred_2080 += pop_array
             else:
                 pred_2080 = pop_array
-                
+
         elif file == 'pred_2090.tif':
             if type(pred_2090) is np.ndarray:
-                pred_2090 = pred_2090 + pop_array
+                pred_2090 += pop_array
             else:
                 pred_2090 = pop_array
-                
+
         else:
             if type(pred_2100) is np.ndarray:
-                pred_2100 = pred_2100 + pop_array
+                pred_2100 += pop_array
             else:
                 pred_2100 = pop_array
-            
+
 
 pred_2020 = pred_2020 / len(sub_dirs)
 pred_2030 = pred_2030 / len(sub_dirs)

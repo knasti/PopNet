@@ -18,9 +18,7 @@ class ExampleTrainer(BaseTrain):
         acc=np.mean(accs)
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
-        summaries_dict = {}
-        summaries_dict['loss'] = loss
-        summaries_dict['acc'] = acc
+        summaries_dict = {'loss': loss, 'acc': acc}
         self.logger.summarize(cur_it, summaries_dict=summaries_dict)
         self.model.save(self.sess)
     def train_step(self):

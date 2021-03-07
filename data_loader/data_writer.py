@@ -18,10 +18,11 @@ class DataWriter():
 
     def write_outputs(self):
         # Finds the number of outputs
-        output_nr = 2020
-        for file in os.listdir(self.config.output_pred_dir):
-            if file.endswith(".tif"):
-                output_nr += 10
+        output_nr = 2020 + sum(
+            10
+            for file in os.listdir(self.config.output_pred_dir)
+            if file.endswith(".tif")
+        )
 
         # Writes the predicted output
         output_tif = os.path.join(self.config.output_pred_dir, 'pred_{}.tif'.format(output_nr))

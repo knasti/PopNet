@@ -45,7 +45,7 @@ class BaseTrain:
         raise NotImplementedError
 
     def test(self):
-        for cur_epoch in range(self.model.cur_epoch_tensor.eval(self.sess), 1, 1):
+        for _ in range(self.model.cur_epoch_tensor.eval(self.sess), 1, 1):
             self.test_epoch()
             self.sess.run(self.model.increment_cur_epoch_tensor)
 

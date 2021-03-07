@@ -56,9 +56,9 @@ def main():
     start_raster = data.prepdata.x_data[0][:,:,0]
     prev_raster = start_raster
 
-    rasters = []
-
     with sess:
+        rasters = []
+
         for k in range(config.num_outputs):
             data.prepdata.output_nr = k
             data.create_data()
@@ -122,7 +122,6 @@ def main():
             print('Min value pop: {}'.format(np.amin(output_raster)))
             print('Max value pop: {}'.format(np.amax(output_raster)))
             print('Sum value pop: {}'.format(np.sum(output_raster)))
-
     # Calculating back to population
     # norm_sum = np.sum(output_raster)
     # final_pop = np.sum(pop_arr_14)

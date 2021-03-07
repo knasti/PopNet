@@ -69,7 +69,7 @@ class DataGenerator():
         self.i_test += 1
         self.tot_i_test += 1
 
-        if self.i_test == self.list_num_test_batches[self.pair_no]:
+        if self.i_test == self.list_num_test_batches[pair_no]:
             self.i_test = 0
             self.pair_no += 1
 
@@ -247,15 +247,22 @@ class PrepData():
         raster = np.empty((self.chunk_rows * self.chunk_height, self.chunk_cols * self.chunk_width, self.no_features))
         datawriter = DataWriter(self.data_loader.geotif[0])
 
-        for i in range(len(self.x_data)):
+        for x_datum in self.x_data:
             cur_row = 0
             cur_col = 0
+            x_datum
             for j in range(self.no_chunks):
                 if self.chunk_cols == cur_col:  # Change to new row and reset column if it reaches the end
                     cur_row += 1
                     cur_col = 0
-                self.x_data[i]
-                raster[cur_row * self.chunk_height: (cur_row + 1) * self.chunk_height, cur_col * self.chunk_width: (cur_col + 1) * self.chunk_width, :] = self.x_data[i][j]
+                raster[
+                    cur_row
+                    * self.chunk_height : (cur_row + 1)
+                    * self.chunk_height,
+                    cur_col * self.chunk_width : (cur_col + 1) * self.chunk_width,
+                    :,
+                ] = x_datum[j]
+
 
                 cur_col += 1
 

@@ -40,9 +40,9 @@ def main():
 
     preptt = PrepTrainTest(config, data_loader)
 
-    for i in range(len(data_loader.data_label_pairs)):
-        x_data = data_loader.data_label_pairs[i][0][:, :, :]
-        y_true = data_loader.data_label_pairs[i][1][:, :, 0]
+    for data_label_pair in data_loader.data_label_pairs:
+        x_data = data_label_pair[0][data_loader]
+        y_true = data_label_pair[1][data_loader.data_label_pairs[i][1][:, :, 0]]
 
         preptt.add_data(x_data, y_true)
 

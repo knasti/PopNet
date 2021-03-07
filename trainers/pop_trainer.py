@@ -25,11 +25,7 @@ class PopTrainer(BaseTrain):
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('im train cur_it {}'.format(cur_it))
-        summaries_dict = {}
-        summaries_dict['pop_loss'] = pop_loss
-        summaries_dict['abs_loss'] = abs_loss
-        summaries_dict['loss'] = loss
-
+        summaries_dict = {'pop_loss': pop_loss, 'abs_loss': abs_loss, 'loss': loss}
         self.logger.summarize(cur_it, summaries_dict=summaries_dict)
         self.model.save(self.sess)
 
@@ -65,11 +61,7 @@ class PopTrainer(BaseTrain):
 
         cur_it = self.model.global_step_tensor.eval(self.sess)
         print('im test cur_it {}'.format(cur_it))
-        summaries_dict = {}
-        summaries_dict['pop_loss'] = pop_loss
-        summaries_dict['abs_loss'] = abs_loss
-        summaries_dict['loss'] = loss
-
+        summaries_dict = {'pop_loss': pop_loss, 'abs_loss': abs_loss, 'loss': loss}
         self.logger.summarize(cur_it, summerizer="test", summaries_dict=summaries_dict)
 
     def test_step(self):

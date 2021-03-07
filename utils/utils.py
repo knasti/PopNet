@@ -8,5 +8,4 @@ def get_args():
         metavar='C',
         default='None',
         help='The Configuration file')
-    args = argparser.parse_args()
-    return args
+    return argparser.parse_args()
